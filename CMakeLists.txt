@@ -70,10 +70,10 @@ set( SOURCE_FILES
 	random.cpp
 )
 
-add_library( lib_grayscale_filter STATIC ${HEADER_FILES} ${SOURCE_FILES} )
-add_dependencies( lib_grayscale_filter header_libraries_prj )
-target_link_libraries( lib_grayscale_filter ${Boost_LIBRARIES} ${FREEIMAGE_LIBRARIES} )
+add_library( grayscale_filter STATIC ${HEADER_FILES} ${SOURCE_FILES} )
+add_dependencies( grayscale_filter header_libraries_prj )
+target_link_libraries( grayscale_filter ${Boost_LIBRARIES} ${FREEIMAGE_LIBRARIES} )
 
-install( TARGETS lib_grayscale_filter DESTINATION lib )
-install( DIRECTORY ${HEADER_FOLDER}/ DESTINATION include/daw/lib_grayscale_filter )
+install( TARGETS grayscale_filter DESTINATION lib )
+install( DIRECTORY ${HEADER_FOLDER}/ DESTINATION include/daw/grayscale_filter )
 
