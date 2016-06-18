@@ -24,8 +24,8 @@
 #include "genericimage.h"
 #include "genericrgb.h"
 #include "helpers.h"
-#include "daw_algorithm.h"
-#include "daw_parallel_algorithm.h"
+#include <daw/daw_algorithm.h>
+#include <daw/daw_parallel_algorithm.h>
 #include <boost/math/special_functions/round.hpp>
 #include <cassert>
 #include <cmath>

@@ -23,13 +23,12 @@
 #include "filterdawgs.h"
 #include "genericimage.h"
 #include "genericrgb.h"
-#include "daw_parallel_algorithm.h"
-#include "daw_array.h"
+#include <daw/daw_parallel_algorithm.h>
+#include <daw/daw_array.h>
 #include <boost/scoped_array.hpp>
 #include <unordered_map>
 #include <iterator>
 #include <map>
-//#include <omp.h>
 #include <stdexcept>
 #include <utility>
 #include <vector>

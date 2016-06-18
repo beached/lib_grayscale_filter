@@ -1,6 +1,6 @@
 cmake_minimum_required( VERSION 2.8.12 )
 
-project( lib_grayscale_filter )
+project( lib_grayscale_filter_prj )
 
 include( ExternalProject )
 
@@ -22,7 +22,7 @@ else( )
 	endif( )
 
 	if( ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" )
-		add_compile_options( -std=c++14 -stdlib=libc++ -Weverything -Wno-c++98-compat -Wfatal-
+		add_compile_options(-std=c++14 -stdlib=libc++ -Weverything -Wno-c++98-compat -Wfatal-errors -Wno-covered-switch-default -Wno-padded -Wno-exit-time-destructors -Wno-c++98-compat-pedantic -Wno-unused-parameter -Wno-missing-noreturn -Wno-missing-prototypes -Wno-disabled-macro-expansion)		
 	elseif( ${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" )
 		add_compile_options( -std=c++14 -Wall -Wno-deprecated-declarations )
 	endif( )
@@ -72,8 +72,8 @@ set( SOURCE_FILES
 
 add_library( lib_grayscale_filter STATIC ${HEADER_FILES} ${SOURCE_FILES} )
 add_dependencies( lib_grayscale_filter header_libraries_prj )
-target_link_libraries( lib_grayscale_filter ${Boost_LIBRARIES} freeimage )
+target_link_libraries( lib_grayscale_filter ${Boost_LIBRARIES} ${FREEIMAGE_LIBRARIES} )
 
-install( TARGETS nodepp DESTINATION lib )
+install( TARGETS lib_grayscale_filter DESTINATION lib )
 install( DIRECTORY ${HEADER_FOLDER}/ DESTINATION include/daw/lib_grayscale_filter )
 
