@@ -1,15 +1,15 @@
-cmake_minimum_required( VERSION 2.8.12 )
+cmake_minimum_required( VERSION 3.2 )
 
 project( lib_grayscale_filter_prj )
 
 include( ExternalProject )
+set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR} )
 
 set( Boost_USE_STATIC_LIBS OFF ) 
 set( Boost_USE_MULTITHREADED ON )  
 set( Boost_USE_STATIC_RUNTIME OFF ) 
-find_package( Boost 1.59.0 REQUIRED COMPONENTS system filesystem regex unit_test_framework program_options iostreams python )
 
-set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR} )
+find_package( Boost 1.59.0 REQUIRED COMPONENTS system filesystem regex unit_test_framework program_options iostreams python )
 
 find_package( FreeImage REQUIRED )
 
@@ -70,15 +70,15 @@ set( SOURCE_FILES
 	random.cpp
 )
 
-add_library( grayscale_filter STATIC ${HEADER_FILES} ${SOURCE_FILES} )
-add_dependencies( grayscale_filter header_libraries_prj )
-target_link_libraries( grayscale_filter ${Boost_LIBRARIES} ${FREEIMAGE_LIBRARIES} )
+#add_library( grayscale_filter STATIC ${HEADER_FILES} ${SOURCE_FILES} )
+#add_dependencies( grayscale_filter header_libraries_prj )
+#target_link_libraries( grayscale_filter ${Boost_LIBRARIES} ${FREEIMAGE_LIBRARIES} )
 
 add_library( grayscale_filter_shared SHARED ${HEADER_FILES} ${SOURCE_FILES} )
 add_dependencies( grayscale_filter_shared header_libraries_prj )
 target_link_libraries( grayscale_filter_shared ${Boost_LIBRARIES} ${FREEIMAGE_LIBRARIES} )
 
-install( TARGETS grayscale_filter DESTINATION lib )
+#install( TARGETS grayscale_filter DESTINATION lib )
 install( TARGETS grayscale_filter_shared DESTINATION lib )
 install( DIRECTORY ${HEADER_FOLDER}/ DESTINATION include/daw/grayscale_filter )
 

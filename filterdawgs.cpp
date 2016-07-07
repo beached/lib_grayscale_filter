@@ -35,6 +35,16 @@
 
 namespace daw {
 	namespace imaging {
+		namespace {
+			template<typename Map>
+			auto get_keys( Map const & m ) {
+				daw::array<typename Map::key_type> result( m.size( ) );
+				daw::algorithm::parallel::non::transform( m.begin( ), m.end( ), result.begin( ), []( auto const & val ) {
+					return val.first;
+				} );
+				return result;
+			}
+		}	// namespace anonymous
 		GenericImage<rgb3> FilterDAWGS::filter( GenericImage<rgb3> const & image_input ) {
 			//no parallel to valuepos
 			using valuepos_t = std::unordered_map<int32_t, int32_t>;
@@ -48,10 +58,7 @@ namespace daw {
 			if( valuepos.size( ) > 256 ) {
 				auto const inc = static_cast<float>( valuepos.size( ) ) / 256.0f;
 				{
-					daw::array<int32_t> keys( valuepos.size( ) );
-					daw::algorithm::parallel::non::transform( valuepos.begin( ), valuepos.end( ), keys.begin( ), []( auto val ) {
-						return val.first;
-					} );
+					auto keys = get_keys( valuepos );
 
 					std::sort( keys.begin( ), keys.end( ) );
 
