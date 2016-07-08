@@ -53,21 +53,28 @@ namespace daw {
 			template<typename T>
 			constexpr T const const_under_half = T(0.49999999999999999999999999999999999999999999999999999999999999999999999999999999);
 
-			template<typename T>
-			constexpr T const coefficients = []( ) {
-				T const sqrt_tmp = sqrt( static_cast<T>(0.125) );
-				std::array<T, 64> result;
-				for( size_t j = 0; j < 8; ++j ) {
-					result[j] = sqrt_tmp;
-					for( size_t i = 8; i < 64; i+=8 ) {
-						result[i + j] = static_cast<T>(0.5) * cos( static_cast<T>(i) * (static_cast<T>(j) + static_cast<T>(0.5)) * const_pi<T> / static_cast<T>(64.0));	
+			namespace impl {
+				namespace {
+					template<typename T>
+					auto const & coefficients( ) noexcept {
+						static auto const result = []( ) {
+							T const sqrt_tmp = sqrt( static_cast<T>(0.125) );
+							std::array<T, 64> result;
+							for( size_t j = 0; j < 8; ++j ) {
+								result[j] = sqrt_tmp;
+								for( size_t i = 8; i < 64; i+=8 ) {
+									result[i + j] = static_cast<T>(0.5) * cos( static_cast<T>(i) * (static_cast<T>(j) + static_cast<T>(0.5)) * const_pi<T> / static_cast<T>(64.0));	
+								}
+							}
+							return result;
+						}( );
+						return result;
 					}
-				}
-				return result;
-			}( );
+				}	// namespace anonymous
+			}	// namespace impl
 
 			template<typename T = double>
-			void forward_dct( GenericImage<uint32_t> & image ) {
+			void forward_dct( GenericImage<int32_t> & image ) {
 				assert( image.width( ) >= 8 );
 				assert( image.height( ) >= 8 );
 				GenericImage<T> result( 8, 8 );	
@@ -76,7 +83,7 @@ namespace daw {
 					for( size_t j=0; j<8; ++j ) {
 						T tmp = 0;
 						for( size_t k=0; k<8; ++k ) {
-							tmp += coefficients<T>[i + k] * static_cast<T>(image[k * 8 + j]);
+							tmp += impl::coefficients<T>( )[i + k] * static_cast<T>(image[k * 8 + j]);
 						}
 						result[i + j] = tmp * static_cast<T>( 8 );
 					}
@@ -86,7 +93,7 @@ namespace daw {
 					for( size_t i=0; i<64; i+=8 ) {
 						T tmp = 0;
 						for( size_t k=0; k<8; ++k ) {
-							tmp += result[i + k] * coefficients<T>[j * 8 + k];
+							tmp += result[i + k] * impl::coefficients<T>( )[j * 8 + k];
 						}
 						image[i + j] = floor( tmp + const_under_half<T> );
 					}

@@ -123,12 +123,12 @@ namespace daw {
 		public:
 
 			const_reference operator[]( size_t pos ) const {
-				pos = convert_pos( );
+				pos = convert_pos( pos );
 				return m_image_data[pos];
 			}
 
 			reference operator[]( size_t pos ) {
-				pos = convert_pos( );
+				pos = convert_pos( pos );
 				return m_image_data[pos];
 			}
 
