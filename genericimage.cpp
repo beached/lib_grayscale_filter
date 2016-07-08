@@ -30,19 +30,28 @@ namespace daw {
 		}
 
 		GenericImage<rgb3>::GenericImage( size_t width, size_t height, size_t origin_x, size_t origin_y, size_t row_width, size_t image_size, values_type image_data ): 
-				m_width{ width }, 
-				m_height{ height }, 
-				m_origin_x{ origin_x },
-				m_origin_y{ origin_y },
-				m_row_width{ row_width },
-				m_size{ image_size },
-				m_id{ Random<size_t>::getNext( ) },
-				m_image_data{ image_data } {
-					assert( m_origin_x + m_width <= m_row_width );
-					assert( m_row_width*height <= m_size ); 
-				}
+			m_width{ width }, 
+			m_height{ height }, 
+			m_row_width{ row_width },
+			m_origin_x{ origin_x },
+			m_origin_y{ origin_y },
+			m_size{ image_size },
+			m_id{ Random<size_t>::getNext( ) },
+			m_image_data{ image_data } {
+				assert( m_origin_x + m_width <= m_row_width );
+				assert( m_row_width*height <= m_size ); 
+			}
 
-		GenericImage<rgb3>::GenericImage( size_t const width, size_t const height ): m_width( width ), m_height( height ), m_row_width{ width*height }, m_size( width*height ), m_id( Random<int>::getNext( ) ), m_image_data( new GenericRGB<uint8_t>[width*height] ) {
+		GenericImage<rgb3>::GenericImage( size_t const width, size_t const height ): 
+			m_width( width ), 
+			m_height( height ), 
+			m_row_width{ width*height },
+			m_origin_x{ 0 },
+			m_origin_y{ 0 },
+			m_size( width*height ), 
+			m_id( Random<size_t>::getNext( ) ), 
+			m_image_data( new GenericRGB<uint8_t>[width*height] ) {
+
 			nullcheck( m_image_data.get( ), "Error creating GenericImage" );
 		}
 
@@ -52,7 +61,9 @@ namespace daw {
 
 		void GenericImage<rgb3>::to_file( boost::string_ref image_filename, GenericImage<rgb3> const& image_input ) {
 			try {
-				FreeImage image_output( FreeImage_Allocate( static_cast<int32_t>(image_input.width( )), static_cast<int32_t>(image_input.height( )), 24 ) );
+				assert( image_input.width( ) <= static_cast<size_t>(std::numeric_limits<int>::max( )) );
+				assert( image_input.height( ) <= static_cast<size_t>(std::numeric_limits<int>::max( )) );
+				FreeImage image_output( FreeImage_Allocate( static_cast<int>(image_input.width( )), static_cast<int>(image_input.height( )), 24 ) );
 				{
 					assert( image_input.height( ) > 0 );
 					auto const maxy = image_input.height( ) - 1;
@@ -65,7 +76,7 @@ namespace daw {
 							rgb_out.rgbGreen = rgb_in.green;
 							rgb_out.rgbRed = rgb_in.red;
 
-							if( !FreeImage_SetPixelColor( image_output.ptr( ), x, maxy - y, &rgb_out ) ) {
+							if( !FreeImage_SetPixelColor( image_output.ptr( ), static_cast<unsigned>(x), static_cast<unsigned>(maxy - y), &rgb_out ) ) {
 								throw std::runtime_error( "Error setting pixel data" );
 							}
 						}
@@ -132,12 +143,14 @@ namespace daw {
 				GenericImage<rgb3> image_output( image_input.width( ), image_input.height( ) );
 
 				{
-					auto const maxy = static_cast<int32_t>( image_output.height( ) ) - 1;
-#pragma omp parallel for
-					for( int32_t y = 0; y < static_cast<int32_t>( image_output.height( ) ); ++y ) {
+					assert( image_output.width( ) <= static_cast<size_t>(std::numeric_limits<unsigned>::max( )) );
+					assert( image_output.height( ) <= static_cast<size_t>(std::numeric_limits<unsigned>::max( )) );
+					auto const maxy = image_output.height( ) - 1;
+
+					for( size_t y = 0; y < image_output.height( ); ++y ) {
 						RGBQUAD rgb_in;
 						for( size_t x = 0; x < image_output.width( ); ++x ) {
-							if( FreeImage_GetPixelColor( image_input.ptr( ), x, maxy - y, &rgb_in ) ) {
+							if( FreeImage_GetPixelColor( image_input.ptr( ), static_cast<unsigned>(x), static_cast<unsigned>(maxy - y), &rgb_in ) ) {
 								rgb3 const rgb_out( rgb_in.rgbRed, rgb_in.rgbGreen, rgb_in.rgbBlue );
 								image_output( y, x ) = rgb_out;
 							} else {

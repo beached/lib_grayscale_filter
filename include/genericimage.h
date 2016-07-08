@@ -64,23 +64,23 @@ namespace daw {
 			GenericImage( size_t width, size_t height, size_t origin_x, size_t origin_y, size_t row_width, size_t image_size, values_type image_data ): 
 				m_width{ width }, 
 				m_height{ height }, 
+				m_row_width{ row_width },
 				m_origin_x{ origin_x },
 				m_origin_y{ origin_y },
-				m_row_width{ row_width },
 				m_size{ image_size },
 				m_id{ Random<size_t>::getNext( ) },
 				m_image_data{ image_data } {
 
 					assert( m_origin_x + m_width <= m_row_width );
-					assert( m_row_width*height <= m_image_size ); 
+					assert( m_row_width*height <= m_size ); 
 				}
 		public:
 			GenericImage( size_t width, size_t height ): 
 				m_width( width ), 
 				m_height( height ), 
+				m_row_width{ width }, 
 				m_origin_x{ 0 }, 
 				m_origin_y{ 0 }, 
-				m_row_width{ width }, 
 				m_size( width*height ), 
 				m_id( Random<size_t>::getNext( ) ), 
 				m_image_data( new T[m_row_width*m_height] ) {
@@ -118,9 +118,7 @@ namespace daw {
 
 		private:
 			constexpr size_t convert_pos( size_t pos ) const {
-				auto y = pos / width;
-				auto x = pos - (y*width);
-				return (m_origin_y + y)*m_row_width + x + m_origin_x;
+				return (m_origin_y + (pos / m_width))*m_row_width + (pos - (pos / m_width*m_width)) + m_origin_x;
 			}
 		public:
 
@@ -174,9 +172,9 @@ namespace daw {
 		private:
 			size_t m_width;
 			size_t m_height;
+			size_t m_row_width;
 			size_t m_origin_x;
 			size_t m_origin_y;
-			size_t m_row_width;
 			size_t m_size;
 			size_t m_id;
 			values_type m_image_data;

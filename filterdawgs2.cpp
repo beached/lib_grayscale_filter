@@ -68,15 +68,15 @@ namespace daw {
 
 			template<typename T>
 			void forward_dct( GenericImage<uint32_t> & image ) {
-				assert( input_image.width( ) >= 8 );
-				assert( input_image.height( ) >= 8 );
+				assert( image.width( ) >= 8 );
+				assert( image.height( ) >= 8 );
 				GenericImage<T> result( 8, 8 );	
 				
 				for( size_t i=0; i<64; i+=8 ) {
 					for( size_t j=0; j<8; ++j ) {
 						T tmp = 0;
 						for( size_t k=0; k<8; ++k ) {
-							tmp += coefficients<T>[i + k] * static_cast<T>(input_image[k * 8 + j]);
+							tmp += coefficients<T>[i + k] * static_cast<T>(image[k * 8 + j]);
 						}
 						result[i + j] = tmp * static_cast<T>( 8 );
 					}
@@ -94,6 +94,7 @@ namespace daw {
 			}
 
 		}	// namespace anonymous
+
 		GenericImage<rgb3> FilterDAWGS2::filter( GenericImage<rgb3> const & image_input ) {
 			//no parallel to valuepos
 			GenericImage<int32_t> result( daw::ceil_by( image_input.width( ), 8.0 ), daw::ceil_by( image_input.height( ), 8.0 ) );
