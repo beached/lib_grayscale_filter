@@ -45,7 +45,7 @@ namespace daw {
 		GenericImage<rgb3>::GenericImage( size_t const width, size_t const height ): 
 			m_width( width ), 
 			m_height( height ), 
-			m_row_width{ width*height },
+			m_row_width{ width },
 			m_origin_x{ 0 },
 			m_origin_y{ 0 },
 			m_size( width*height ), 
