@@ -76,11 +76,11 @@ set( SOURCE_FILES
 #add_dependencies( grayscale_filter header_libraries_prj )
 #target_link_libraries( grayscale_filter ${Boost_LIBRARIES} ${FREEIMAGE_LIBRARIES} )
 
-add_library( grayscale_filter_shared SHARED ${HEADER_FILES} ${SOURCE_FILES} )
-add_dependencies( grayscale_filter_shared header_libraries_prj )
-target_link_libraries( grayscale_filter_shared ${Boost_LIBRARIES} ${FREEIMAGE_LIBRARIES} )
+add_library( grayscale_filter ${HEADER_FILES} ${SOURCE_FILES} )
+add_dependencies( grayscale_filter header_libraries_prj )
+target_link_libraries( grayscale_filter ${Boost_LIBRARIES} ${FREEIMAGE_LIBRARIES} )
 
 #install( TARGETS grayscale_filter DESTINATION lib )
-install( TARGETS grayscale_filter_shared DESTINATION lib )
+install( TARGETS grayscale_filter DESTINATION lib )
 install( DIRECTORY ${HEADER_FOLDER}/ DESTINATION include/daw/grayscale_filter )
 
