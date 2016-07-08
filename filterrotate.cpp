@@ -33,7 +33,6 @@
 namespace daw {
 	namespace imaging {
 		GenericImage<rgb3> FilterRotate::filter( GenericImage<rgb3> const &image_input, uint32_t const angle ) {
-			typedef GenericImage<rgb3>::pos_t pos_t;
 
 			if( angle > 3 ) {
 				throw std::runtime_error( "Cannot specify an angle other than 0 to 3 inclusive" );
@@ -42,11 +41,11 @@ namespace daw {
 			case 1:
 			{
 				GenericImage<rgb3> image_rotated( image_input.height( ), image_input.width( ) );
-				pos_t const maxy = image_input.height( ) - 1;
+				size_t const maxy = image_input.height( ) - 1;
 
 //#pragma omp parallel for
-				for( int32_t y = 0; y < static_cast<int32_t>(image_input.height( )); ++y ) {
-					for( pos_t x = 0; x < image_input.width( ); ++x ) {
+				for( size_t y = 0; y < image_input.height( ); ++y ) {
+					for( size_t x = 0; x < image_input.width( ); ++x ) {
 						image_rotated( x, maxy - y ) = image_input( y, x );
 					}
 				}
@@ -55,12 +54,12 @@ namespace daw {
 			case 2:
 			{
 				GenericImage<rgb3> image_rotated( image_input.width( ), image_input.height( ) );
-				pos_t const maxx = image_input.width( ) - 1;
-				pos_t const maxy = image_input.height( ) - 1;
+				auto const maxx = image_input.width( ) - 1;
+				auto const maxy = image_input.height( ) - 1;
 //#pragma omp parallel for
-				for( int32_t y = 0; y < static_cast<int32_t>(image_input.height( )); ++y ) {
-					for( pos_t x = 0; x < image_input.width( ); ++x ) {
-						image_rotated( maxy - static_cast<pos_t >(y), maxx - x ) = image_input( y, x );
+				for( size_t y = 0; y < image_input.height( ); ++y ) {
+					for( size_t x = 0; x < image_input.width( ); ++x ) {
+						image_rotated( maxy - static_cast<size_t >(y), maxx - x ) = image_input( y, x );
 					}
 				}
 				return image_rotated;
@@ -70,8 +69,8 @@ namespace daw {
 				GenericImage<rgb3> image_rotated( image_input.height( ), image_input.width( ) );
 				auto const maxx = image_input.width( ) - 1;
 //#pragma omp parallel for
-				for( int32_t y = 0; y < static_cast<int32_t>(image_input.height( )); ++y ) {
-					for( pos_t x = 0; x < image_input.width( ); ++x ) {
+				for( size_t y = 0; y < image_input.height( ); ++y ) {
+					for( size_t x = 0; x < image_input.width( ); ++x ) {
 						image_rotated( maxx - x, y ) = image_input( y, x );
 					}
 				}

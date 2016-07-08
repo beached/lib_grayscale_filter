@@ -25,49 +25,47 @@
 
 namespace daw {
 	namespace imaging {
-		namespace {
-			constexpr size_t GenericImage<rgb3>::convert_pos( size_t pos ) const {
-				auto y = pos / width;
-				auto x = pos - (y*width);
-				return (m_origin_y + y)*m_row_width + x + m_origin_x;
-			}
-		}	// namespace anonymous
-		GenericImage<rgb3>::GenericImage( size_t width, size_t height, size_t origin_x, size_t origin_y, size_t row_width, size_t image_size, boost::shared_array<T> image_data ): 
+		constexpr size_t GenericImage<rgb3>::convert_pos( size_t pos ) const {
+			return (m_origin_y + (pos / m_width))*m_row_width + (pos - (pos / m_width*m_width)) + m_origin_x;
+		}
+
+		GenericImage<rgb3>::GenericImage( size_t width, size_t height, size_t origin_x, size_t origin_y, size_t row_width, size_t image_size, values_type image_data ): 
 				m_width{ width }, 
 				m_height{ height }, 
 				m_origin_x{ origin_x },
 				m_origin_y{ origin_y },
 				m_row_width{ row_width },
 				m_size{ image_size },
-				m_id{ Random<size_t>::getNext( },
+				m_id{ Random<size_t>::getNext( ) },
 				m_image_data{ image_data } {
 					assert( m_origin_x + m_width <= m_row_width );
-					assert( m_row_width*height <= m_image_size ); 
+					assert( m_row_width*height <= m_size ); 
 				}
 
-		GenericImage<rgb3>::GenericImage( pos_t const width, pos_t const height ): m_width( width ), m_height( height ), m_row_width{ width*height }, m_size( width*height ), m_id( Random<int>::getNext( ) ), m_image_data( new GenericRGB<uint8_t>[width*height] ) {
+		GenericImage<rgb3>::GenericImage( size_t const width, size_t const height ): m_width( width ), m_height( height ), m_row_width{ width*height }, m_size( width*height ), m_id( Random<int>::getNext( ) ), m_image_data( new GenericRGB<uint8_t>[width*height] ) {
 			nullcheck( m_image_data.get( ), "Error creating GenericImage" );
 		}
 
-		GenericImag<rgb3>::view( size_t origin_x, size_t origin_y, size_t width, size_t height ) {
-			return result( width, height, m_row_width, m_image_data );
+		GenericImage<rgb3> GenericImage<rgb3>::view( size_t origin_x, size_t origin_y, size_t width, size_t height ) {
+			return GenericImage( width, height, origin_x, origin_y, m_row_width, m_size, m_image_data );
 		}
 
 		void GenericImage<rgb3>::to_file( boost::string_ref image_filename, GenericImage<rgb3> const& image_input ) {
 			try {
-				typedef GenericImage<rgb3>::pos_t pos_t;
 				FreeImage image_output( FreeImage_Allocate( static_cast<int32_t>(image_input.width( )), static_cast<int32_t>(image_input.height( )), 24 ) );
 				{
-					auto const maxy = static_cast<int32_t>(image_input.height( )) - 1;
+					assert( image_input.height( ) > 0 );
+					auto const maxy = image_input.height( ) - 1;
 //#pragma omp parallel for
-					for( int32_t y = 0; y < static_cast<int32_t>(image_input.height( )); ++y ) {
+					for( size_t y = 0; y < image_input.height( ); ++y ) {
 						RGBQUAD rgb_out;
-						for( pos_t x = 0; x < image_input.width( ); ++x ) {
+						for( size_t x = 0; x < image_input.width( ); ++x ) {
 							rgb3 const rgb_in = image_input( y, x );
 							rgb_out.rgbBlue = rgb_in.blue;
 							rgb_out.rgbGreen = rgb_in.green;
 							rgb_out.rgbRed = rgb_in.red;
-							if( !FreeImage_SetPixelColor( image_output.ptr( ), static_cast<uint32_t>( x ), static_cast<uint32_t>( maxy - y ), &rgb_out ) ) {
+
+							if( !FreeImage_SetPixelColor( image_output.ptr( ), x, maxy - y, &rgb_out ) ) {
 								throw std::runtime_error( "Error setting pixel data" );
 							}
 						}
@@ -93,7 +91,6 @@ namespace daw {
 
 		GenericImage<rgb3> GenericImage<rgb3>::from_file( boost::string_ref image_filename ) {
 			try {
-				typedef GenericImage<rgb3>::pos_t pos_t;
 				{
 					boost::filesystem::path const pImageFile( image_filename.data( ) );
 					if( !boost::filesystem::exists( pImageFile ) ) {
@@ -139,8 +136,8 @@ namespace daw {
 #pragma omp parallel for
 					for( int32_t y = 0; y < static_cast<int32_t>( image_output.height( ) ); ++y ) {
 						RGBQUAD rgb_in;
-						for( pos_t x = 0; x < image_output.width( ); ++x ) {
-							if( FreeImage_GetPixelColor( image_input.ptr( ), static_cast<uint32_t>( x ), static_cast<uint32_t>( maxy - y ), &rgb_in ) ) {
+						for( size_t x = 0; x < image_output.width( ); ++x ) {
+							if( FreeImage_GetPixelColor( image_input.ptr( ), x, maxy - y, &rgb_in ) ) {
 								rgb3 const rgb_out( rgb_in.rgbRed, rgb_in.rgbGreen, rgb_in.rgbBlue );
 								image_output( y, x ) = rgb_out;
 							} else {
@@ -160,11 +157,11 @@ namespace daw {
 			}
 		}
 
-		GenericImage<rgb3>::pos_t GenericImage<rgb3>::width( ) const {
+		size_t GenericImage<rgb3>::width( ) const {
 			return m_width;
 		}
 
-		GenericImage<rgb3>::pos_t GenericImage<rgb3>::height( ) const {
+		size_t GenericImage<rgb3>::height( ) const {
 			return m_height;
 		}
 
@@ -176,21 +173,21 @@ namespace daw {
 			return m_id;
 		}
 
-		GenericImage<rgb3>::const_reference GenericImage<rgb3>::operator( )( pos_t const y, pos_t const x ) const {
+		GenericImage<rgb3>::const_reference GenericImage<rgb3>::operator( )( size_t const y, size_t const x ) const {
 			return m_image_data[y*m_row_width + x];
 		}
 
-		GenericImage<rgb3>::reference GenericImage<rgb3>::operator( )( pos_t const y, pos_t const x ) {
+		GenericImage<rgb3>::reference GenericImage<rgb3>::operator( )( size_t const y, size_t const x ) {
 			return m_image_data[y*m_row_width + x];
 		}
 
 		GenericImage<rgb3>::const_reference GenericImage<rgb3>::operator[]( size_t pos ) const {
-			pos = m_width == m_row_width ? pos : convert_pos( pos, m_row_width, width );
+			pos = convert_pos( pos );
 			return m_image_data[pos];
 		}
 
 		GenericImage<rgb3>::reference GenericImage<rgb3>::operator[]( size_t pos ) {
-			pos = m_width == m_row_width ? pos : convert_pos( pos, m_row_width, width );
+			pos = convert_pos( pos );
 			return m_image_data[pos];
 		}
 
@@ -216,7 +213,7 @@ namespace daw {
 		}
 #ifdef DAWFILTER_USEPYTHON
 		void GenericImage<rgb3>::register_python( std::string const& nameoftype ) {
-			boost::python::class_<GenericImage<rgb3> >( nameoftype.c_str( ), boost::python::init<const GenericImage<rgb3>::pos_t, const GenericImage<rgb3>::pos_t>( ) )
+			boost::python::class_<GenericImage<rgb3> >( nameoftype.c_str( ), boost::python::init<const size_t, const size_t>( ) )
 				.def( "from_file", &GenericImage<rgb3>::from_file ).static method( "from_file" )
 				.def( "to_file", &GenericImage<rgb3>::to_file ).static method( "to_file" )
 				.add_property( "size", &GenericImage<rgb3>::size )

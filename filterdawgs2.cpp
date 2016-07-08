@@ -100,22 +100,22 @@ namespace daw {
 			assert( image_input.size( ) == result.size( ) );
 	
 			// Expand GS and pad result image dimensions to next multiple of 8
-			for( uint32_t y = 0; y < image_input.height( ); ++y ) {
-				for( uint32_t x = 0; x < image_input.width( ); ++x ) {
+			for( size_t y = 0; y < image_input.height( ); ++y ) {
+				for( size_t x = 0; x < image_input.width( ); ++x ) {
 					result( y, x ) = FilterDAWGS2::too_gs( image_input( y, x ) );
 				}
-				for( uint32_t x = image_input.width( ); x<result.width( ); ++x ) {
+				for( auto x = image_input.width( ); x<result.width( ); ++x ) {
 					result( y, x ) = 0;
 				}
 			}
-			for( uint32_t y = image_input.height( ); y<result.height( ) ++y ) {
-				for( uint32_t x = 0; x < result.width( ); ++x ) {
+			for( auto y = image_input.height( ); y < result.height( ); ++y ) {
+				for( size_t x = 0; x < result.width( ); ++x ) {
 					result( y, x ) = 0;
 				}
 			}
 
-			for( uint32_t y = 0; y<result.height( ) y+=8 ) {
-				for( uint32_t x = 0; x < result.width( ); x+=8 ) {
+			for( size_t y = 0; y < result.height( ); y += 8 ) {
+				for( size_t x = 0; x < result.width( ); x+=8 ) {
 
 				}
 			}
@@ -141,7 +141,7 @@ namespace daw {
 					return static_cast<uint8_t>(vp[FilterDAWGS2::too_gs( rgb )]);
 				} );
 				return image_output;
-			} else*/ { // Already a grayscale image or has enough room for all possible values and no compression needed
+			} else { // Already a grayscale image or has enough room for all possible values and no compression needed
 				std::cerr << "Already a grayscale image or has enough room for all possible values and no compression needed:" << valuepos.size( ) << std::endl;
 				GenericImage<rgb3> image_output( image_input.width( ), image_input.height( ) );
 
@@ -151,7 +151,9 @@ namespace daw {
 					return static_cast<uint8_t>(rgb.too_float_gs( ));
 				} );
 				return image_output;
-			}
+			}*/
+			GenericImage<rgb3> image_output( image_input.width( ), image_input.height( ) );
+			return image_output;
 		}
 
 		int32_t FilterDAWGS2::too_gs( rgb3 const & pixel ) {
