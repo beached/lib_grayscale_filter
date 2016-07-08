@@ -52,6 +52,7 @@ set( HEADER_FOLDER "include" )
 SET( HEADER_FILES
 	${HEADER_FOLDER}/filterdawgscolourize.h
 	${HEADER_FOLDER}/filterdawgs.h
+	${HEADER_FOLDER}/filterdawgs2.h
 	${HEADER_FOLDER}/filterrotate.h
 	${HEADER_FOLDER}/fimage.h
 	${HEADER_FOLDER}/genericimage.h
@@ -64,6 +65,7 @@ SET( HEADER_FILES
 set( SOURCE_FILES
 	filterdawgscolourize.cpp
 	filterdawgs.cpp
+	filterdawgs2.cpp
 	filterrotate.cpp
 	fimage.cpp
 	genericimage.cpp

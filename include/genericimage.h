@@ -45,7 +45,7 @@ namespace daw {
 	namespace imaging {
 		template<class T>
 		struct GenericImage {
-			using pos_t = uint32_t;
+			using size_t = uint32_t;
 			using value_type = T;
 			using values_type = boost::shared_array<value_type>;
 			using iterator = value_type *;
@@ -53,21 +53,51 @@ namespace daw {
 			using reference = value_type &;
 			using const_reference = value_type const &;
 		private:
-			pos_t m_width;
-			pos_t m_height;
+			size_t m_width;
+			size_t m_height;
+			size_t m_row_width;
+			size_t m_origin_x;
+			size_t m_origin_y;
 			size_t m_size;
 			size_t m_id;
 			boost::shared_array<T> m_image_data;
+
+			GenericImage( size_t width, size_t height, size_t origin_x, size_t origin_y, size_t row_width, size_t image_size, boost::shared_array<T> image_data ): 
+				m_width{ width }, 
+				m_height{ height }, 
+				m_origin_x{ origin_x },
+				m_origin_y{ origin_y },
+				m_row_width{ row_width },
+				m_size{ image_size },
+				m_id{ Random<size_t>::getNext( },
+				m_image_data{ image_data } {
+
+					assert( m_origin_x + m_width <= m_row_width );
+					assert( m_row_width*height <= m_image_size ); 
+				}
 		public:
-			GenericImage( pos_t width, pos_t height ): m_width( width ), m_height( height ), m_size( width*height ), m_id( Random<size_t>::getNext( ) ), m_image_data( new T[m_size] ) {
+			GenericImage( size_t width, size_t height ): 
+				m_width( width ), 
+				m_height( height ), 
+				m_origin_x{ 0 }, 
+				m_origin_y{ 0 }, 
+				m_row_width{ width }, 
+				m_size( width*height ), 
+				m_id( Random<size_t>::getNext( ) ), 
+				m_image_data( new T[m_row_width*m_height] ) {
+
 				nullcheck( m_image_data.get( ), "Error creating GenericImage" );
 			}
 
-			pos_t width( ) const {
+			GenericImage view( size_t origin_x, size_t origin_y, size_t width, size_t height ) {
+				return result( width, height, origin_x, origin_y, m_row_width, width*height, m_image_data );
+			}
+	
+			size_t width( ) const {
 				return m_width;
 			}
 
-			pos_t height( ) const {
+			size_t height( ) const {
 				return m_height;
 			}
 
@@ -79,19 +109,29 @@ namespace daw {
 				return m_id;
 			}
 
-			const_reference operator( )( pos_t const row, pos_t const col ) const {
-				return m_image_data[row*m_width + col];
+			const_reference operator( )( size_t const row, size_t const col ) const {
+				return m_image_data[(m_origin_y + row)*m_row_width + col + m_origin_x];
 			}
 
-			reference operator( )( pos_t const row, pos_t const col ) {
-				return m_image_data[row*m_width + col];
+			reference operator( )( size_t const row, size_t const col ) {
+				return m_image_data[(m_origin_y + row)*m_row_width + col + m_origin_x];
 			}
 
-			const_reference operator[]( size_t const pos ) const {
+		private:
+			constexpr size_t convert_pos( size_t pos ) const {
+				auto y = pos / width;
+				auto x = pos - (y*width);
+				return (m_origin_y + y)*m_row_width + x + m_origin_x;
+			}
+		public:
+
+			const_reference operator[]( size_t pos ) const {
+				pos = convert_pos( );
 				return m_image_data[pos];
 			}
 
-			reference operator[]( size_t const pos ) {
+			reference operator[]( size_t pos ) {
+				pos = convert_pos( );
 				return m_image_data[pos];
 			}
 
@@ -112,7 +152,7 @@ namespace daw {
 
 #ifdef DAWFILTER_USEPYTHON
 			static void register_python( std::string const & nameoftype ) {
-				boost::python::class_<GenericImage>( nameoftype.c_str( ), boost::python::init<const GenericImage::pos_t, const GenericImage::pos_t>( ) )
+				boost::python::class_<GenericImage>( nameoftype.c_str( ), boost::python::init<const GenericImage::size_t, const GenericImage::size_t>( ) )
 					.def( "from_file", &GenericImage::from_file ).static method( "from_file" )
 					.def( "to_file", &GenericImage::to_file ).static method( "to_file" )
 					.add_property( "size", &GenericImage::size )
@@ -126,7 +166,6 @@ namespace daw {
 		template<>
 		class GenericImage<rgb3> {
 		public:
-			using pos_t = uint32_t;
 			using value_type = rgb3;
 			using values_type = boost::shared_array<value_type>;
 			using iterator = value_type *;
@@ -134,22 +173,31 @@ namespace daw {
 			using reference = value_type &;
 			using const_reference = value_type const &;
 		private:
-			pos_t m_width;
-			pos_t m_height;
+			size_t m_width;
+			size_t m_height;
+			size_t m_row_width;
 			size_t m_size;
 			size_t m_id;
 			values_type m_image_data;
+			constexpr size_t convert_pos( size_t pos ) const;
+
+			GenericImage( size_t width, size_t height, size_t origin_x, size_t origin_y, size_t row_width, size_t image_size, boost::shared_array<T> image_data ); 
 		public:
-			GenericImage( pos_t const width, pos_t const height );
+			GenericImage( size_t const width, size_t const height );
+
+			GenericImage view( size_t origin_x, size_t origin_y, size_t width, size_t height ) {
+				return result( width, height, origin_x, origin_y, m_row_width, m_image_data );
+			}
+
 			static void to_file( boost::string_ref image_filename, GenericImage<rgb3> const& image_input );
 			void to_file( boost::string_ref image_filename ) const;
 			static GenericImage<rgb3> from_file( boost::string_ref image_filename );
-			pos_t width( ) const;
-			pos_t height( ) const;
+			size_t width( ) const;
+			size_t height( ) const;
 			size_t size( ) const;
 			size_t id( ) const;
-			const_reference operator( )( pos_t const y, pos_t const x ) const;
-			reference operator( )( pos_t const y, pos_t const x );
+			const_reference operator( )( size_t const y, size_t const x ) const;
+			reference operator( )( size_t const y, size_t const x );
 			const_reference operator[]( size_t const pos ) const;
 			reference operator[]( size_t const pos );
 			iterator begin( );
