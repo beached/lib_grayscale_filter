@@ -58,12 +58,16 @@ namespace daw {
 					template<typename T>
 					auto const & coefficients( ) noexcept {
 						static auto const result = []( ) {
-							T const sqrt_tmp = sqrt( static_cast<T>(0.125) );
+							auto const sqrt_tmp = sqrt( static_cast<T>(0.125) );
+							auto const pi_over_64 = const_pi<T> / static_cast<T>(64.0);
 							std::array<T, 64> result;
 							for( size_t j = 0; j < 8; ++j ) {
 								result[j] = sqrt_tmp;
 								for( size_t i = 8; i < 64; i+=8 ) {
-									result[i + j] = static_cast<T>(0.5) * cos( static_cast<T>(i) * (static_cast<T>(j) + static_cast<T>(0.5)) * const_pi<T> / static_cast<T>(64.0));	
+									auto rad = static_cast<T>(i)
+										* (static_cast<T>(j) + static_cast<T>(0.5))
+										* pi_over_64;
+									result[i + j] = static_cast<T>(0.5) * cos( rad );	
 								}
 							}
 							return result;
@@ -73,11 +77,11 @@ namespace daw {
 				}	// namespace anonymous
 			}	// namespace impl
 
-			template<typename T = double>
-			void forward_dct( GenericImage<int32_t> & image ) {
+			template<typename T, typename U>
+			void forward_dct( GenericImage<U> & image ) noexcept {
 				assert( image.width( ) >= 8 );
 				assert( image.height( ) >= 8 );
-				GenericImage<T> result( 8, 8 );	
+				std::array<T, 64> result;
 				
 				for( size_t i=0; i<64; i+=8 ) {
 					for( size_t j=0; j<8; ++j ) {
@@ -90,12 +94,13 @@ namespace daw {
 				}
 
 				for( size_t j=0; j<8; ++j ) {
+					auto j8 = j * 8;
 					for( size_t i=0; i<64; i+=8 ) {
-						T tmp = 0;
+						T tmp = 0;						
 						for( size_t k=0; k<8; ++k ) {
-							tmp += result[i + k] * impl::coefficients<T>( )[j * 8 + k];
+							tmp += result[i + k] * impl::coefficients<T>( )[j8 + k];
 						}
-						image[i + j] = floor( tmp + const_under_half<T> );
+						image[i + j] = static_cast<U>(floor( tmp + const_under_half<T> ));
 					}
 				}
 			}
@@ -103,7 +108,7 @@ namespace daw {
 		}	// namespace anonymous
 
 		GenericImage<rgb3> FilterDAWGS2::filter( GenericImage<rgb3> const & image_input ) {
-			GenericImage<int32_t> result( daw::ceil_by( image_input.width( ), 8.0 ), daw::ceil_by( image_input.height( ), 8.0 ) );
+			GenericImage<double> result( daw::ceil_by( image_input.width( ), 8.0 ), daw::ceil_by( image_input.height( ), 8.0 ) );
 			assert( image_input.size( ) == result.size( ) );
 	
 			// Expand GS and pad result image dimensions to next multiple of 8
@@ -164,9 +169,9 @@ namespace daw {
 			return image_output;
 		}
 
-		int32_t FilterDAWGS2::too_gs( rgb3 const & pixel ) {
+		double FilterDAWGS2::too_gs( rgb3 const & pixel ) {
 			// Returns a ~24bit grayscale value from 0 to ~16 million
-			return 19595 * pixel.red + 38469 * pixel.green + 7471 * pixel.blue;	// 0.299r + 0.587g + 0.114b
+			return static_cast<double>(19595 * pixel.red + 38469 * pixel.green + 7471 * pixel.blue)/65535.0;	// 0.299r + 0.587g + 0.114b
 		}
 
 #ifdef DAWFILTER_USEPYTHON
