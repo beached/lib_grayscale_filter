@@ -57,7 +57,7 @@ namespace daw {
 				namespace {
 					template<typename T>
 					auto const & coefficients( ) noexcept {
-						static auto const result = []( ) {
+						static auto const coeff = []( ) {
 							auto const sqrt_tmp = sqrt( static_cast<T>(0.125) );
 							auto const pi_over_64 = const_pi<T> / static_cast<T>(64.0);
 							std::array<T, 64> result;
@@ -72,7 +72,7 @@ namespace daw {
 							}
 							return result;
 						}( );
-						return result;
+						return coeff;
 					}
 				}	// namespace anonymous
 			}	// namespace impl
@@ -128,8 +128,8 @@ namespace daw {
 
 			for( size_t y = 0; y < result.height( ); y += 8 ) {
 				for( size_t x = 0; x < result.width( ); x+=8 ) {
-					auto current_view = result.view( x, y, 8, 8 );
-					forward_dct<double>( current_view );
+//					auto current_view = result.view( x, y, 8, 8 );
+//					forward_dct<double>( current_view );
 				}
 			}
 
