@@ -26,6 +26,7 @@
 #include <daw/daw_parallel_algorithm.h>
 #include <daw/daw_array.h>
 #include <daw/daw_utility.h>
+#include <daw/daw_math.h>
 #include <boost/scoped_array.hpp>
 #include <unordered_map>
 #include <iterator>
@@ -48,18 +49,15 @@ namespace daw {
 			}
 			
 			template<typename T>
-			constexpr T const const_pi = T(3.14159265358979323846264338327950288419716939937510582097494459230781640628620899);
-
-			template<typename T>
 			constexpr T const const_under_half = T(0.49999999999999999999999999999999999999999999999999999999999999999999999999999999);
 
 			namespace impl {
 				namespace {
 					template<typename T>
-					auto const & coefficients( ) noexcept {
-						static auto const coeff = []( ) {
+					constexpr auto const & coefficients( ) noexcept {
+						return []( ) {
 							auto const sqrt_tmp = sqrt( static_cast<T>(0.125) );
-							auto const pi_over_64 = const_pi<T> / static_cast<T>(64.0);
+							auto const pi_over_64 = daw::math::PI<T> / static_cast<T>(64.0);
 							std::array<T, 64> result;
 							for( size_t j = 0; j < 8; ++j ) {
 								result[j] = sqrt_tmp;
@@ -67,12 +65,11 @@ namespace daw {
 									auto rad = static_cast<T>(i)
 										* (static_cast<T>(j) + static_cast<T>(0.5))
 										* pi_over_64;
-									result[i + j] = static_cast<T>(0.5) * cos( rad );	
+									result[i + j] = static_cast<T>(0.5) * daw::math::cos( rad );	
 								}
 							}
 							return result;
 						}( );
-						return coeff;
 					}
 				}	// namespace anonymous
 			}	// namespace impl
