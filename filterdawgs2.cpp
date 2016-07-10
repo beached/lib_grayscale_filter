@@ -182,38 +182,6 @@ namespace daw {
 				}
 			}
 
-			/*if( valuepos.size( ) > 256 ) {
-				auto const inc = static_cast<float>( valuepos.size( ) ) / 256.0f;
-				{
-					auto keys = get_keys( valuepos );
-
-					std::sort( keys.begin( ), keys.end( ) );
-
-					daw::algorithm::parallel::for_each( 0, keys.size( ), [&]( auto n ) {
-						auto const curval = static_cast<int32_t>(static_cast<float>(n) / inc);
-						auto const curkey = static_cast<int32_t>(keys[n]);	// TODO clarify why sign changes
-						valuepos[curkey] = curval;
-					} );
-				}
-
-				GenericImage<rgb3> image_output( image_input.width( ), image_input.height( ) );
-
-				// TODO: make parallel
-				daw::algorithm::parallel::non::transform( image_input.begin( ), image_input.end( ), image_output.begin( ), [&vp=valuepos]( rgb3 const & rgb ) {
-					return static_cast<uint8_t>(vp[FilterDAWGS2::too_gs( rgb )]);
-				} );
-				return image_output;
-			} else { // Already a grayscale image or has enough room for all possible values and no compression needed
-				std::cerr << "Already a grayscale image or has enough room for all possible values and no compression needed:" << valuepos.size( ) << std::endl;
-				GenericImage<rgb3> image_output( image_input.width( ), image_input.height( ) );
-
-				assert( image_input.size( ) <= image_output.size( ) );
-				// TODO: make parallel
-				daw::algorithm::parallel::non::transform( image_input.begin( ), image_input.end( ), image_output.begin( ), []( rgb3 const & rgb ) {
-					return static_cast<uint8_t>(rgb.too_float_gs( ));
-				} );
-				return image_output;
-			}*/
 			GenericImage<rgb3> image_output( image_input.width( ), image_input.height( ) );
 			return image_output;
 		}
