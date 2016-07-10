@@ -47,6 +47,7 @@ namespace daw {
 				} );
 				return result;
 			}
+
 			
 			template<typename T>
 			constexpr T const const_under_half = T(0.49999999999999999999999999999999999999999999999999999999999999999999999999999999);
