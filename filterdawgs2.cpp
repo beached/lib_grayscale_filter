@@ -163,9 +163,18 @@ namespace daw {
 				}
 			}
 
+			auto quantize = []( auto & dct_vals ) { 
+				for( size_t i = 4; i < 8; ++i ) {
+					for( size_t j = 4; j < 8; ++j ) {
+						dct_vals( i, j ) = 0.0;
+					}				
+				}
+			};
+
 			for( size_t y = 0; y < result.height( ); y += 8 ) {
 				for( size_t x = 0; x < result.width( ); x+=8 ) {
 					auto d = dct( result, x, y );
+					quantize( d );
 					// reduce gs values
 					idct( result, d, x, y );
 				}
