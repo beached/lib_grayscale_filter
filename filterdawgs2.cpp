@@ -164,9 +164,11 @@ namespace daw {
 			}
 
 			auto quantize = []( auto & dct_vals ) { 
-				for( size_t i = 4; i < 8; ++i ) {
-					for( size_t j = 4; j < 8; ++j ) {
-						dct_vals( i, j ) = 0.0;
+				for( size_t i = 0; i < 8; ++i ) {
+					for( size_t j = 0; j < 8; ++j ) {
+						if( i > 3 || j > 3 ) {
+							dct_vals( i, j ) = 0.0;
+						}
 					}				
 				}
 			};
