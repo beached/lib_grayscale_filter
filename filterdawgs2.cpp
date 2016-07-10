@@ -73,32 +73,71 @@ namespace daw {
 						}( );
 					}
 				}	// namespace anonymous
+
+				template<typename T, typename U>
+				void coeffs( T & Cu, T & Cv, U u, U v ) {
+					Cu = u == 0 ? 1.0/sqrt( 2.0 ) : 1.0;
+					Cv = v == 0 ? 1.0/sqrt( 2.0 ) : 1.0;
+				}
 			}	// namespace impl
 
-			template<typename T, typename U>
-			void forward_dct( GenericImage<U> & image ) noexcept {
-				assert( image.width( ) >= 8 );
-				assert( image.height( ) >= 8 );
-				std::array<T, 64> result;
-				
-				for( size_t i=0; i<64; i+=8 ) {
-					for( size_t j=0; j<8; ++j ) {
-						T tmp = 0;
-						for( size_t k=0; k<8; ++k ) {
-							tmp += impl::coefficients<T>( )[i + k] * static_cast<T>(image[k * 8 + j]);
+
+			template<typename T>
+			GenericImage<double> dct( GenericImage<T> const & image, size_t const xpos, size_t const ypos ) {
+				GenericImage<double> data( 8, 8 );
+				for( size_t v=0; v<8; v++ ) {
+					for( size_t u=0; u<8; u++ ) {
+						double Cu = 0;
+						double Cv = 0;
+						double z = 0.0;
+
+						impl::coeffs( Cu, Cv, u, v );
+
+						for( size_t y=0; y<8; y++ ) {
+							for( size_t x=0; x<8; x++ ) {
+								auto s = static_cast<double>(image( x + xpos, y + ypos ));
+
+								auto q = s * cos( static_cast<double>((2*x+1)*u) * daw::math::PI<double>/16.0 )
+										* cos( static_cast<double>((2*y+1)*v) * daw::math::PI<double>/16.0 );
+								z += q;
+							}
 						}
-						result[i + j] = tmp * static_cast<T>( 8 );
+						data( v, u ) = 0.25 * Cu * Cv * z;
 					}
 				}
+				return data;
+			}
 
-				for( size_t j=0; j<8; ++j ) {
-					auto j8 = j * 8;
-					for( size_t i=0; i<64; i+=8 ) {
-						T tmp = 0;						
-						for( size_t k=0; k<8; ++k ) {
-							tmp += result[i + k] * impl::coefficients<T>( )[j8 + k];
+			template<typename T>
+			void idct( GenericImage<T> & image, GenericImage<double> const & dct_data, size_t const xpos, size_t const ypos ) {
+				// iDCT 
+				for( size_t y=0; y<8; y++ ) {
+					for( size_t x=0; x<8; x++ ) {
+						double z = 0.0;
+
+						for( size_t v=0; v<8; v++ ) {
+							for( size_t u=0; u<8; u++ ) {
+								double Cu = 0.0;
+								double Cv = 0.0;
+								
+								impl::coeffs( Cu, Cv, u, v );
+								auto S = dct_data( v, u );
+
+								auto q = Cu * Cv * S *
+									cos( static_cast<double>((2*x+1)*u) * daw::math::PI<double>/16.0 ) *
+									cos( static_cast<double>((2*y+1)*v) * daw::math::PI<double>/16.0 );
+								z += q;
+							}
 						}
-						image[i + j] = static_cast<U>(floor( tmp + const_under_half<T> ));
+
+						z /= 4.0;
+						if( z > std::numeric_limits<T>::max( ) ) {
+							image( x + xpos, y + ypos ) = std::numeric_limits<T>::max( );
+						} else if( z < 0 ) {
+							image( x + xpos, y + ypos ) = 0;
+						} else {
+							image( x + xpos, y + ypos ) = static_cast<T>( z );
+						}
 					}
 				}
 			}
@@ -126,8 +165,9 @@ namespace daw {
 
 			for( size_t y = 0; y < result.height( ); y += 8 ) {
 				for( size_t x = 0; x < result.width( ); x+=8 ) {
-//					auto current_view = result.view( x, y, 8, 8 );
-//					forward_dct<double>( current_view );
+					auto d = dct( result, x, y );
+					// reduce gs values
+					idct( result, d, x, y );
 				}
 			}
 
