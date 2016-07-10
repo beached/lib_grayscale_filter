@@ -183,6 +183,14 @@ namespace daw {
 			}
 
 			GenericImage<rgb3> image_output( image_input.width( ), image_input.height( ) );
+		
+			for( size_t y = 0; y < result.height( ); ++y ) {
+				for( size_t x = 0; x < result.width( ); ++x ) {
+					auto c = static_cast<uint8_t>(result( x, y ));
+					image_output( x, y ) = { c, c, c };
+				}
+			}	
+
 			return image_output;
 		}
 
