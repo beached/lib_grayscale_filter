@@ -171,7 +171,7 @@ namespace daw {
 			assert( image_input.size( ) <= image_output.size( ) );
 			// TODO: make parallel
 			daw::algorithm::parallel::non::transform( image_input.begin( ), image_input.end( ), image_output.begin( ), [&]( rgb3 const & rgb ) {
-				auto result = static_cast<uint8_t>(((static_cast<double>( rgb.red )/weight_red + static_cast<double>( rgb.green )/weight_green + static_cast<double>( rgb.blue )/weight_blue)/dv)/255.0);
+				auto result = static_cast<uint8_t>(((static_cast<double>( rgb.red )/weight_red + static_cast<double>( rgb.green )/weight_green + static_cast<double>( rgb.blue )/weight_blue)/dv)/3.0);
 					return result;
 			} );
 			return image_output;
