@@ -33,7 +33,7 @@
 
 namespace daw {
 	namespace imaging {
-		template<class T>
+		template<typename T>
 		class GenericRGB final {
 		public:
 			T blue;
@@ -132,6 +132,15 @@ namespace daw {
 
 			float too_float_gs( ) const {
 				return helpers::too_gs_small( red, green, blue );
+			}
+
+			template<typename V>
+			auto as_tuple( ) {
+				return std::forward_as_tuple( static_cast<V>( red ), static_cast<V>( green ), static_cast<V>( blue ) );
+			}
+
+			auto as_tuple( ) {
+				return std::forward_as_tuple( red, green, blue );
 			}
 
 #ifdef DAWFILTER_USEPYTHON

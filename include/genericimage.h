@@ -131,7 +131,7 @@ namespace daw {
 			const_iterator end( ) const {
 				return m_image_data->end( );
 			}
-
+			
 #ifdef DAWFILTER_USEPYTHON
 			static void register_python( std::string const & nameoftype ) {
 				boost::python::class_<GenericImage>( nameoftype.c_str( ), boost::python::init<size_t const, size_t const>( ) )

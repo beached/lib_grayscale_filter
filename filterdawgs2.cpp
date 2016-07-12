@@ -35,6 +35,9 @@
 #include <utility>
 #include <vector>
 #include <cmath>
+#include <tuple>
+#include <algorithm>
+#include <numeric>
 
 namespace daw {
 	namespace imaging {
@@ -145,52 +148,38 @@ namespace daw {
 		}	// namespace anonymous
 
 		GenericImage<rgb3> FilterDAWGS2::filter( GenericImage<rgb3> const & image_input ) {
-			GenericImage<double> result( daw::ceil_by( image_input.width( ), 8.0 ), daw::ceil_by( image_input.height( ), 8.0 ) );
-			assert( image_input.size( ) == result.size( ) );
-	
-			// Expand GS and pad result image dimensions to next multiple of 8
-			for( size_t y = 0; y < image_input.height( ); ++y ) {
-				for( size_t x = 0; x < image_input.width( ); ++x ) {
-					result( y, x ) = FilterDAWGS2::too_gs( image_input( y, x ) );
-				}
-				for( auto x = image_input.width( ); x<result.width( ); ++x ) {
-					result( y, x ) = 0;
-				}
-			}
-			for( auto y = image_input.height( ); y < result.height( ); ++y ) {
-				for( size_t x = 0; x < result.width( ); ++x ) {
-					result( y, x ) = 0;
-				}
-			}
 
-			auto quantize = []( auto & dct_vals ) { 
-				for( size_t i = 0; i < 8; ++i ) {
-					for( size_t j = 0; j < 8; ++j ) {
-						if( i > 3 || j > 3 ) {
-							dct_vals( i, j ) = 0.0;
-						}
-					}				
-				}
-			};
+			auto sum = std::accumulate( image_input.begin( ), image_input.end( ), std::tuple<uintmax_t, uintmax_t, uintmax_t>{ 0, 0, 0 }, []( auto init, auto const & current ) {
+				std::get<0>( init ) += current.red;
+				std::get<1>( init ) += current.green;
+				std::get<2>( init ) += current.blue;
+				return init;
+			} );			
 
-			for( size_t y = 0; y < result.height( ); y += 8 ) {
-				for( size_t x = 0; x < result.width( ); x+=8 ) {
-					auto d = dct( result, x, y );
-					quantize( d );
-					// reduce gs values
-					idct( result, d, x, y );
-				}
-			}
+			std::get<0>( sum ) /= image_input.size( );
+			std::get<1>( sum ) /= image_input.size( );
+			std::get<2>( sum ) /= image_input.size( );
 
 			GenericImage<rgb3> image_output( image_input.width( ), image_input.height( ) );
-		
-			for( size_t y = 0; y < result.height( ); ++y ) {
-				for( size_t x = 0; x < result.width( ); ++x ) {
-					auto c = static_cast<uint8_t>(result( x, y ));
-					image_output( x, y ) = { c, c, c };
-				}
-			}	
 
+			auto mx = static_cast<double>( std::max( { std::get<0>( sum ), std::get<1>( sum ), std::get<2>( sum ) } ) );
+			auto weight_red = static_cast<double>( std::get<0>( sum ) )/mx;
+			auto weight_green = static_cast<double>( std::get<1>( sum ) )/mx;
+			auto weight_blue = static_cast<double>( std::get<2>( sum ) )/mx;
+			auto dv = (weight_red + weight_green + weight_blue)/3.0;
+
+			assert( image_input.size( ) <= image_output.size( ) );
+			// TODO: make parallel
+			daw::algorithm::parallel::non::transform( image_input.begin( ), image_input.end( ), image_output.begin( ), [&]( rgb3 const & rgb ) {
+				return 
+				static_cast<uint8_t>(
+					(
+						(
+							static_cast<double>( rgb.red )/weight_red + static_cast<double>( rgb.green )/weight_green + static_cast<double>( rgb.blue )/weight_blue
+						)/dv
+					)/255.0
+					);
+			} );
 			return image_output;
 		}
 
