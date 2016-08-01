@@ -30,6 +30,7 @@
 #endif
 #include <string>
 #include <cstdint>
+#include <tuple>
 
 namespace daw {
 	namespace imaging {
