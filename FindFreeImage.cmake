@@ -31,7 +31,8 @@ SET(SEARCH_PATHS
 	$ENV{SystemDrive}/freeimage/include
 	$ENV{ProgramFiles}/freeimage
 	$ENV{SystemDrive}/freeimage
-	/usr/include
+	/usr
+	/usr/local
 	)
 IF(FREEIMAGE_ROOT)
 	SET(SEARCH_PATHS
