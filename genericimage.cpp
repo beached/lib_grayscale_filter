@@ -38,14 +38,14 @@ namespace daw {
 			m_height( height ), 
 			m_size( width*height ), 
 			m_id( Random<id_t>::getNext( ) ), 
-			m_image_data( static_cast<typename values_type::size_type>( width*height ) ) { }
+			m_image_data( width*height ) { }
 
 		GenericImage<rgb3>::GenericImage( GenericImage const & other ): 
 				m_width{ other.m_width },
 				m_height{ other.m_height },
 				m_size{ other.m_size },
 				m_id{ Random<id_t>::getNext( ) },
-				m_image_data( static_cast<typename values_type::size_type>( m_size ) ) {
+				m_image_data( m_size ) {
 
 			std::copy_n( other.m_image_data.begin( ), other.m_size, m_image_data.begin( ) );
 		}
