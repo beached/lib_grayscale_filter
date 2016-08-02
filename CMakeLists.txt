@@ -58,7 +58,6 @@ SET( HEADER_FILES
 	${HEADER_FOLDER}/genericimage.h
 	${HEADER_FOLDER}/genericrgb.h
 	${HEADER_FOLDER}/helpers.h
-	${HEADER_FOLDER}/nullptr.h
 	${HEADER_FOLDER}/random.h
 )
 
