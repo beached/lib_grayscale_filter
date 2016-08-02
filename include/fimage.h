@@ -23,10 +23,7 @@
 
 #pragma once
 
-#include "nullptr.h"
-
 #include <FreeImage.h>
-
 #include <boost/utility/string_ref.hpp>
 
 namespace daw {
