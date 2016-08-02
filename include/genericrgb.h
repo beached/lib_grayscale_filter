@@ -35,8 +35,7 @@
 namespace daw {
 	namespace imaging {
 		template<typename T>
-		class GenericRGB final {
-		public:
+		struct GenericRGB final {
 			T blue;
 			T green;
 			T red;
