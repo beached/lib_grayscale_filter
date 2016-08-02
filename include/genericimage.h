@@ -46,14 +46,11 @@ namespace daw {
 		template<class T>
 		struct GenericImage {
 			using value_type = ::std::decay_t<T>;
-		private:
-			using values_type_inner = std::vector<value_type>;
-		public:
-			using values_type = std::shared_ptr<values_type_inner>;
-			using iterator = typename values_type_inner::iterator;
-			using const_iterator = typename values_type_inner::const_iterator;
-			using reference = typename values_type_inner::reference;
-			using const_reference = typename values_type_inner::const_reference;
+			using values_type = std::vector<value_type>;
+			using iterator = typename values_type::iterator;
+			using const_iterator = typename values_type::const_iterator;
+			using reference = typename values_type::reference;
+			using const_reference = typename values_type::const_reference;
 			using id_t = uint32_t;
 		private:
 			size_t m_width;
@@ -68,9 +65,8 @@ namespace daw {
 					m_height{ height }, 
 					m_size{ width*height }, 
 					m_id{ Random<id_t>::getNext( ) }, 
-					m_image_data{ std::make_shared<values_type_inner>( static_cast<size_t>( width*height ) ) } {
+					m_image_data( static_cast<typename values_type::size_type>( width*height ) ) {
 
-				daw::exception::daw_throw_on_null( m_image_data.get( ), "Error creating GenericImage" );
 			}
 
 			GenericImage( GenericImage const & other ): 
@@ -78,10 +74,9 @@ namespace daw {
 					m_height{ other.m_height },
 					m_size{ other.m_size },
 					m_id{ Random<id_t>::getNext( ) },
-					m_image_data{ std::make_shared<values_type_inner>( static_cast<size_t>( width*height ) ) } {
+					m_image_data( static_cast<typename values_type::size_type>( width*height ) ) {
 
-				daw::exception::daw_throw_on_null( m_image_data.get( ), "Error creating GenericImage" );
-				std::copy_n( other.m_image_data.get( ), other.m_size, m_image_data.get( ) );
+				std::copy_n( other.m_image_data.begin( ), other.m_size, m_image_data.begin( ) );
 			}
 
 			GenericImage( GenericImage && ) = default;
@@ -132,12 +127,12 @@ namespace daw {
 			}
 
 		private:
-			values_type_inner & arry( ) {
-				return *m_image_data;
+			values_type & arry( ) {
+				return m_image_data;
 			}
 
-			values_type_inner const & arry( ) const {
-				return *m_image_data;
+			values_type const & arry( ) const {
+				return m_image_data;
 			}
 		public:
 
@@ -150,19 +145,19 @@ namespace daw {
 			}
 
 			iterator begin( ) {
-				return m_image_data->begin( );
+				return m_image_data.begin( );
 			}
 
 			const_iterator begin( ) const {
-				return m_image_data->begin( );
+				return m_image_data.begin( );
 			}
 
 			iterator end( ) {
-				return m_image_data->end( );
+				return m_image_data.end( );
 			}
 			
 			const_iterator end( ) const {
-				return m_image_data->end( );
+				return m_image_data.end( );
 			}
 			
 #ifdef DAWFILTER_USEPYTHON
@@ -183,14 +178,11 @@ namespace daw {
 		template<>
 		struct GenericImage<rgb3> {
 			using value_type = rgb3;
-		private:
-			using values_type_inner = std::vector<value_type>;
-		public:
-			using values_type = std::shared_ptr<values_type_inner>;
-			using iterator = typename values_type_inner::iterator;
-			using const_iterator = typename values_type_inner::const_iterator;
-			using reference = typename values_type_inner::reference;
-			using const_reference = typename values_type_inner::const_reference;
+			using values_type = std::vector<value_type>;
+			using iterator = typename values_type::iterator;
+			using const_iterator = typename values_type::const_iterator;
+			using reference = typename values_type::reference;
+			using const_reference = typename values_type::const_reference;
 			using id_t = uint32_t;
 		private:
 			size_t m_width;
@@ -198,8 +190,8 @@ namespace daw {
 			size_t m_size;
 			size_t m_id;
 			values_type m_image_data;
-			values_type_inner & arry( );
-			values_type_inner const & arry( ) const;
+			values_type & arry( );
+			values_type const & arry( ) const;
 		public:
 			GenericImage( size_t const width, size_t const height );
 

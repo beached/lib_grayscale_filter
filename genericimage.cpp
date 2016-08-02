@@ -25,12 +25,12 @@
 
 namespace daw {
 	namespace imaging {
-		GenericImage<rgb3>::values_type_inner & GenericImage<rgb3>::arry( ) {
-			return *m_image_data;
+		GenericImage<rgb3>::values_type & GenericImage<rgb3>::arry( ) {
+			return m_image_data;
 		}
 
-		GenericImage<rgb3>::values_type_inner const & GenericImage<rgb3>::arry( ) const {
-			return *m_image_data;
+		GenericImage<rgb3>::values_type const & GenericImage<rgb3>::arry( ) const {
+			return m_image_data;
 		}
 
 		GenericImage<rgb3>::GenericImage( size_t const width, size_t const height ): 
@@ -38,17 +38,16 @@ namespace daw {
 			m_height( height ), 
 			m_size( width*height ), 
 			m_id( Random<id_t>::getNext( ) ), 
-			m_image_data{ std::make_shared<values_type_inner>( static_cast<size_t>( width*height ) ) } { }
+			m_image_data( static_cast<typename values_type::size_type>( width*height ) ) { }
 
 		GenericImage<rgb3>::GenericImage( GenericImage const & other ): 
 				m_width{ other.m_width },
 				m_height{ other.m_height },
 				m_size{ other.m_size },
 				m_id{ Random<id_t>::getNext( ) },
-				m_image_data{ std::make_shared<values_type_inner>( static_cast<size_t>( m_size ) ) } {
+				m_image_data( static_cast<typename values_type::size_type>( m_size ) ) {
 
-			daw::exception::daw_throw_on_null( m_image_data.get( ), "Error creating GenericImage" );
-			std::copy_n( other.m_image_data.get( ), other.m_size, m_image_data.get( ) );
+			std::copy_n( other.m_image_data.begin( ), other.m_size, m_image_data.begin( ) );
 		}
 
 		void swap( GenericImage<rgb3> & lhs, GenericImage<rgb3> & rhs ) noexcept {
@@ -219,19 +218,19 @@ namespace daw {
 		}
 
 		GenericImage<rgb3>::iterator GenericImage<rgb3>::begin( ) {
-			return m_image_data->begin( );
+			return m_image_data.begin( );
 		}
 
 		GenericImage<rgb3>::const_iterator GenericImage<rgb3>::begin( ) const {
-			return m_image_data->begin( );
+			return m_image_data.begin( );
 		}
 
 		GenericImage<rgb3>::iterator GenericImage<rgb3>::end( ) {
-			return m_image_data->end( );
+			return m_image_data.end( );
 		}
 		
 		GenericImage<rgb3>::const_iterator GenericImage<rgb3>::end( ) const {
-			return m_image_data->end( );
+			return m_image_data.end( );
 		}
 
 #ifdef DAWFILTER_USEPYTHON
