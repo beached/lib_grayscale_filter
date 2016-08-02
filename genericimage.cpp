@@ -40,6 +40,37 @@ namespace daw {
 			m_id( Random<id_t>::getNext( ) ), 
 			m_image_data{ std::make_shared<values_type_inner>( static_cast<size_t>( width*height ) ) } { }
 
+		GenericImage<rgb3>::GenericImage( GenericImage const & other ): 
+				m_width{ other.m_width },
+				m_height{ other.m_height },
+				m_size{ other.m_size },
+				m_id{ Random<id_t>::getNext( ) },
+				m_image_data{ std::make_shared<values_type_inner>( static_cast<size_t>( m_size ) ) } {
+
+			daw::exception::daw_throw_on_null( m_image_data.get( ), "Error creating GenericImage" );
+			std::copy_n( other.m_image_data.get( ), other.m_size, m_image_data.get( ) );
+		}
+
+		void swap( GenericImage<rgb3> & lhs, GenericImage<rgb3> & rhs ) noexcept {
+			using std::swap;
+			swap( lhs.m_width, rhs.m_width );
+			swap( lhs.m_height, rhs.m_height );
+			swap( lhs.m_size, rhs.m_size );
+			swap( lhs.m_id, rhs.m_id );
+			swap( lhs.m_image_data, rhs.m_image_data );
+		}
+
+		GenericImage<rgb3> & GenericImage<rgb3>::operator=( GenericImage<rgb3> const & rhs ) {
+			if( this != &rhs ) {
+				GenericImage tmp{ rhs };
+				using std::swap;
+				swap( *this, tmp );
+			}
+			return *this;
+		}
+
+		GenericImage<rgb3>::~GenericImage( ) { } 
+
 		void GenericImage<rgb3>::to_file( boost::string_ref image_filename, GenericImage<rgb3> const& image_input ) {
 			try {
 				assert( image_input.width( ) <= static_cast<size_t>(std::numeric_limits<int>::max( )) );
