@@ -21,19 +21,19 @@
 // SOFTWARE.
 
 
-#include "nullptr.h"
 #include "random.h"
 
 #include <cstdlib>
 #include <ctime>
 #include <climits>
 #include <limits>
+#include <daw/daw_exception.h>
 
 namespace random_help {
 	uint32_t time_seed( ) {
 		auto now = time( nullptr );
 		auto p = reinterpret_cast<uint8_t *>( &now );
-		nullcheck( p, "Point to a struct should never return null" );
+		daw_throw_on_null( p, "Point to a struct should never return null" );
 		auto sizeof_now = sizeof( now );
 		uint32_t seed = 0;
 		for( size_t i = 0; i<sizeof_now; ++i ) {

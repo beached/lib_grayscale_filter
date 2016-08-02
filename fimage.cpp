@@ -22,24 +22,25 @@
 
 
 #include "fimage.h"
+#include <daw/daw_exception.h>
 
 namespace daw {
 	namespace imaging {
 		FreeImage::FreeImage( FIBITMAP * bitmap ): m_bitmap( bitmap ) {
-			nullcheck( m_bitmap, "Error while loading FreeImage bitmap" );
+			daw_throw_on_null( m_bitmap, "Error while loading FreeImage bitmap" );
 		}
 
 		FreeImage::FreeImage( FIBITMAP * bitmap, boost::string_ref errmsg ): m_bitmap( bitmap ) {
-			nullcheck( m_bitmap, errmsg );
+			daw_throw_on_null( m_bitmap, errmsg );
 		}
 
 		FreeImage::FreeImage( FreeImage const & other ): m_bitmap( FreeImage_Clone( other.m_bitmap ) ) {
-			nullcheck( m_bitmap, "Error while loading FreeImage bitmap" );
+			daw_throw_on_null( m_bitmap, "Error while loading FreeImage bitmap" );
 		}
 
 		FreeImage& FreeImage::operator=( FreeImage const & rhs ) {
 			if( this != &rhs ) {
-				nullcheck( m_bitmap, "Error while loading FreeImage bitmap" );
+				daw_throw_on_null( m_bitmap, "Error while loading FreeImage bitmap" );
 				m_bitmap = FreeImage_Clone( rhs.m_bitmap );
 			}
 			return *this;
@@ -47,7 +48,7 @@ namespace daw {
 
 		FreeImage & FreeImage::take( FreeImage & other ) {
 			if( this != &other ) {
-				nullcheck( other.m_bitmap, "Error, attempt to take ownership from a null FreImage" );
+				daw_throw_on_null( other.m_bitmap, "Error, attempt to take ownership from a null FreImage" );
 				m_bitmap = other.m_bitmap;
 				other.m_bitmap = nullptr;
 			}
@@ -56,7 +57,7 @@ namespace daw {
 
 		FreeImage & FreeImage::take( FIBITMAP * bitmap ) {
 			if( m_bitmap != bitmap ) {
-				nullcheck( bitmap, "Error, attempt to take ownership from a null FreImage" );
+				daw_throw_on_null( bitmap, "Error, attempt to take ownership from a null FreImage" );
 				m_bitmap = bitmap;
 			}
 			return *this;
