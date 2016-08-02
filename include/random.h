@@ -24,6 +24,7 @@
 #pragma once
 
 #include <cstdlib>
+#include <cstdint>
 
 namespace random_help {
 	double uniform_deviate( int32_t seed );

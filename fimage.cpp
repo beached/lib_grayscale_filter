@@ -31,7 +31,7 @@ namespace daw {
 		}
 
 		FreeImage::FreeImage( FIBITMAP * bitmap, boost::string_ref errmsg ): m_bitmap( bitmap ) {
-			daw::exception::daw_throw_on_null( m_bitmap, errmsg );
+			daw::exception::daw_throw_on_null( m_bitmap, errmsg.data( ) );
 		}
 
 		FreeImage::FreeImage( FreeImage const & other ): m_bitmap( FreeImage_Clone( other.m_bitmap ) ) {
