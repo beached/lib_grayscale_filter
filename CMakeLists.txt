@@ -9,7 +9,7 @@ set( Boost_USE_STATIC_LIBS OFF )
 set( Boost_USE_MULTITHREADED ON )  
 set( Boost_USE_STATIC_RUNTIME OFF ) 
 
-find_package( Boost 1.59.0 REQUIRED COMPONENTS system filesystem regex unit_test_framework program_options iostreams python )
+find_package( Boost 1.58.0 REQUIRED COMPONENTS system filesystem regex unit_test_framework program_options iostreams python )
 
 find_package( FreeImage REQUIRED )
 
