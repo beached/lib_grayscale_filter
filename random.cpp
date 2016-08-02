@@ -33,7 +33,7 @@ namespace random_help {
 	uint32_t time_seed( ) {
 		auto now = time( nullptr );
 		auto p = reinterpret_cast<uint8_t *>( &now );
-		daw_throw_on_null( p, "Point to a struct should never return null" );
+		daw::exception::daw_throw_on_null( p, "Point to a struct should never return null" );
 		auto sizeof_now = sizeof( now );
 		uint32_t seed = 0;
 		for( size_t i = 0; i<sizeof_now; ++i ) {

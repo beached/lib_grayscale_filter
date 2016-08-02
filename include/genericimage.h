@@ -70,7 +70,7 @@ namespace daw {
 				m_id{ Random<id_t>::getNext( ) }, 
 				m_image_data{ std::make_shared<values_type_inner>( static_cast<size_t>( width*height ) ) } {
 
-				daw_throw_on_null( m_image_data.get( ), "Error creating GenericImage" );
+				daw::exception::daw_throw_on_null( m_image_data.get( ), "Error creating GenericImage" );
 			}
 
 			size_t width( ) const {
