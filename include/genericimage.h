@@ -195,7 +195,7 @@ namespace daw {
 					m_height{ other.m_height },
 					m_size{ other.m_size },
 					m_id{ Random<id_t>::getNext( ) },
-					m_image_data( width*height ) {
+					m_image_data( other.m_size ) {
 
 				std::copy_n( other.m_image_data.begin( ), other.m_size, m_image_data.begin( ) );
 			}
