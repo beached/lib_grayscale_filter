@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 //
-// Copyright (c) 2016 Darrell Wright
+// Copyright (c) 2016-2017 Darrell Wright
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files( the "Software" ), to
@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 #include "fimage.h"
+
 #include <daw/daw_exception.h>
 
 namespace daw {
@@ -30,7 +31,7 @@ FreeImage::FreeImage(FIBITMAP *bitmap) : m_bitmap(bitmap) {
                                     "Error while loading FreeImage bitmap");
 }
 
-FreeImage::FreeImage(FIBITMAP *bitmap, boost::string_ref errmsg)
+FreeImage::FreeImage(FIBITMAP *bitmap, daw::string_view errmsg)
     : m_bitmap(bitmap) {
   daw::exception::daw_throw_on_null(m_bitmap, errmsg.data());
 }

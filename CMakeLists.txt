@@ -60,7 +60,6 @@ SET( HEADER_FILES
 	${HEADER_FOLDER}/genericimage.h
 	${HEADER_FOLDER}/genericrgb.h
 	${HEADER_FOLDER}/helpers.h
-	${HEADER_FOLDER}/random.h
 )
 
 set( SOURCE_FILES
@@ -70,7 +69,6 @@ set( SOURCE_FILES
 	${SOURCE_FOLDER}/filterrotate.cpp
 	${SOURCE_FOLDER}/fimage.cpp
 	${SOURCE_FOLDER}/genericimage.cpp
-	${SOURCE_FOLDER}/random.cpp
 )
 
 add_library( grayscale_filter ${HEADER_FILES} ${SOURCE_FILES} )

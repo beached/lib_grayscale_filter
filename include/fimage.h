@@ -23,7 +23,8 @@
 #pragma once
 
 #include <FreeImage.h>
-#include <boost/utility/string_ref.hpp>
+
+#include <daw/daw_string_view.h>
 
 namespace daw {
 namespace imaging {
@@ -35,7 +36,7 @@ public:
   using bpp_t = decltype(FreeImage_GetBPP(m_bitmap));
   FreeImage() = delete;
   FreeImage(FIBITMAP *bitmap);
-  FreeImage(FIBITMAP *bitmap, boost::string_ref errmsg);
+  FreeImage(FIBITMAP *bitmap, daw::string_view errmsg);
   ~FreeImage();
   FreeImage(FreeImage const &other);
   FreeImage &operator=(FreeImage const &rhs);

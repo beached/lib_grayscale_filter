@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 //
-// Copyright (c) 2016 Darrell Wright
+// Copyright (c) 2016-2017 Darrell Wright
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files( the "Software" ), to
@@ -20,6 +20,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <daw/daw_random.h>
+#include <daw/daw_string_view.h>
+
 #include "genericimage.h"
 
 namespace daw {
@@ -34,11 +37,11 @@ GenericImage<rgb3>::values_type const &GenericImage<rgb3>::arry() const {
 
 GenericImage<rgb3>::GenericImage(size_t const width, size_t const height)
     : m_width(width), m_height(height), m_size(width * height),
-      m_id(Random<id_t>::getNext()), m_image_data(width * height) {}
+      m_id(daw::randint<id_t>()), m_image_data(width * height) {}
 
 GenericImage<rgb3>::GenericImage(GenericImage const &other)
     : m_width{other.m_width}, m_height{other.m_height}, m_size{other.m_size},
-      m_id{Random<id_t>::getNext()}, m_image_data(m_size) {
+      m_id{daw::randint<id_t>()}, m_image_data(m_size) {
 
   std::copy_n(other.m_image_data.begin(), other.m_size, m_image_data.begin());
 }
@@ -64,7 +67,7 @@ operator=(GenericImage<rgb3> const &rhs) {
 
 GenericImage<rgb3>::~GenericImage() {}
 
-void GenericImage<rgb3>::to_file(boost::string_ref image_filename,
+void GenericImage<rgb3>::to_file(daw::string_view image_filename,
                                  GenericImage<rgb3> const &image_input) {
   try {
     assert(image_input.width() <=
@@ -111,12 +114,12 @@ void GenericImage<rgb3>::to_file(boost::string_ref image_filename,
   }
 }
 
-void GenericImage<rgb3>::to_file(boost::string_ref image_filename) const {
+void GenericImage<rgb3>::to_file(daw::string_view image_filename) const {
   GenericImage<rgb3>::to_file(image_filename, *this);
 }
 
 GenericImage<rgb3>
-GenericImage<rgb3>::from_file(boost::string_ref image_filename) {
+GenericImage<rgb3>::from_file(daw::string_view image_filename) {
   try {
     {
       boost::filesystem::path const pImageFile(image_filename.data());
@@ -142,9 +145,11 @@ GenericImage<rgb3>::from_file(boost::string_ref image_filename) {
       }
     }
 
+    std::string const input_image_msg =
+        "Could not open input image '" + image_filename + '\'';
     FreeImage image_input(FreeImage_Load(fif, image_filename.data()),
-                          "Could not open input image '" +
-                              image_filename.to_string() + "'");
+                          input_image_msg.c_str());
+
     if (!(image_input.bpp() == 24 || image_input.bpp() == 32) ||
         FreeImage_GetColorType(image_input.ptr()) != FIC_RGB) {
       FIBITMAP *bitmap_test = nullptr;
@@ -226,7 +231,7 @@ GenericImage<rgb3>::reference GenericImage<rgb3>::operator[](size_t const pos) {
   return arry()[pos];
 }
 
-GenericImage<rgb3> from_file(boost::string_ref image_filename) {
+GenericImage<rgb3> from_file(daw::string_view image_filename) {
   return GenericImage<rgb3>::from_file(image_filename);
 }
 

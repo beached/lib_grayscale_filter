@@ -22,9 +22,6 @@
 
 #pragma once
 
-#include "genericrgb.h"
-#include "random.h"
-
 #ifdef DAWFILTER_USEPYTHON
 #include <boost/python.hpp>
 #endif
@@ -32,13 +29,17 @@
 #include <boost/filesystem.hpp>
 #include <memory>
 
-#include "fimage.h"
-#include <boost/utility/string_ref.hpp>
-#include <daw/daw_exception.h>
 #include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
+
+#include <daw/daw_exception.h>
+#include <daw/daw_random.h>
+#include <daw/daw_string_view.h>
+
+#include "fimage.h"
+#include "genericrgb.h"
 
 namespace daw {
 namespace imaging {
@@ -156,11 +157,11 @@ private:
 public:
   GenericImage(size_t width, size_t height)
       : m_width{width}, m_height{height}, m_size{width * height},
-        m_id{Random<id_t>::getNext()}, m_image_data(width * height) {}
+        m_id{daw::randint<id_t>()}, m_image_data(width * height) {}
 
   GenericImage(GenericImage const &other)
       : m_width{other.m_width}, m_height{other.m_height}, m_size{other.m_size},
-        m_id{Random<id_t>::getNext()}, m_image_data(other.m_size) {
+        m_id{daw::randint<id_t>()}, m_image_data(other.m_size) {
 
     std::copy_n(other.m_image_data.begin(), other.m_size, m_image_data.begin());
   }
@@ -273,10 +274,10 @@ public:
   GenericImage view(size_t origin_x, size_t origin_y, size_t width,
                     size_t height);
 
-  static void to_file(boost::string_ref image_filename,
+  static void to_file(daw::string_view image_filename,
                       GenericImage<rgb3> const &image_input);
-  void to_file(boost::string_ref image_filename) const;
-  static GenericImage<rgb3> from_file(boost::string_ref image_filename);
+  void to_file(daw::string_view image_filename) const;
+  static GenericImage<rgb3> from_file(daw::string_view image_filename);
   size_t width() const;
   size_t height() const;
   size_t size() const;
@@ -293,6 +294,6 @@ public:
   static void register_python(std::string const &nameoftype);
 #endif
 };
-GenericImage<rgb3> from_file(boost::string_ref image_filename);
+GenericImage<rgb3> from_file(daw::string_view image_filename);
 } // namespace imaging
 } // namespace daw
