@@ -26,8 +26,9 @@
 
 #include <daw/daw_benchmark.h>
 #include <daw/daw_exception.h>
-#include <daw/grayscale_filter/filterdawgs2.h>
-#include <daw/grayscale_filter/genericimage.h>
+
+#include "filterdawgs2.h"
+#include "genericimage.h"
 
 int main( int argc, char **argv ) {
 	daw::exception::daw_throw_on_false( argc >= 3, "Must supply a source and destination file" );

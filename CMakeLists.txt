@@ -12,6 +12,7 @@ set( Boost_USE_STATIC_RUNTIME OFF )
 find_package( Boost 1.58.0 REQUIRED COMPONENTS system filesystem regex unit_test_framework program_options iostreams python )
 
 find_package( FreeImage REQUIRED )
+enable_testing( )
 
 if( ${CMAKE_CXX_COMPILER_ID} STREQUAL 'MSVC' )
 	add_compile_options( -D_WIN32_WINNT=0x0601 /std:c++latest )
@@ -79,8 +80,8 @@ target_link_libraries( grayscale_filter ${Boost_LIBRARIES} ${FREEIMAGE_LIBRARIES
 add_custom_target( check COMMAND ${CMAKE_CTEST_COMMAND} )
 
 add_executable( image_in_out_test_bin EXCLUDE_FROM_ALL ${FUNCTION_STREAM_HEADER_FILES} ${TASK_SCHEDULER_HEADER_FILES} ${TEST_FOLDER}/image_in_out_test.cpp )
-target_link_libraries( image_in_out_test_bin grayscale_filter_lib ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} )
-add_dependencies( image_in_out_test_bin header_libraries_prj )
+target_link_libraries( image_in_out_test_bin grayscale_filter ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} )
+add_dependencies( image_in_out_test_bin grayscale_filter header_libraries_prj )
 add_test( image_in_out_test image_in_out_test_bin "${PROJECT_SOURCE_DIR}/img_in_001.jpg" "${CMAKE_BINARY_DIR}/img_out_001.jpg" )
 add_dependencies( check image_in_out_test_bin )
 
