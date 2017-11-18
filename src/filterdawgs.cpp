@@ -31,7 +31,6 @@
 #include <daw/daw_algorithm.h>
 #include <daw/daw_array.h>
 #include <daw/daw_container_algorithm.h>
-#include <daw/fs/algorithms.h>
 
 #include "filterdawgs.h"
 #include "genericimage.h"
@@ -51,28 +50,31 @@ template <typename Map> auto get_keys(Map const &m) {
 GenericImage<rgb3> FilterDAWGS::filter(GenericImage<rgb3> const &image_input) {
   // no parallel to valuepos
   using valuepos_t = std::unordered_map<int32_t, int32_t>;
-  valuepos_t valuepos;
+  valuepos_t valuepos{};
 
+	// Create a valuepos item for each distinct grayscale item in image
+	// and then set count to zero
   // no parallel to valuepos
   for (auto &rgb : image_input) {
     valuepos[FilterDAWGS::too_gs(rgb)] = 0;
   }
 
+	// If we must compress as there isn't room for number of grayscale items
   if (valuepos.size() > 256) {
     auto const inc = static_cast<float>(valuepos.size()) / 256.0f;
     {
-      auto keys = get_keys(valuepos);
+      auto const keys = [valuepos=std::cref(valuepos)] ( ) {
+				auto result = get_keys(valuepos.get( ));
+      	std::sort(result.begin(), result.end());
+				return result;
+			}( );
 
-      std::sort(keys.begin(), keys.end());
-
-      daw::algorithm::parallel::for_each(
-          keys.cbegin(), keys.cend(), [inc, keys = std::cref(keys), &valuepos](auto n) {
-            auto const cur_val =
-                static_cast<int32_t>(static_cast<float>(n) / inc);
-            auto const cur_key =
-                static_cast<int32_t>(keys.get( )[static_cast<size_t>(n)]); // TODO: clarify why sign changes
-            valuepos[cur_key] = cur_val;
-          });
+      // TODO: make parallel
+      for (size_t n = 0; n < keys.size(); ++n) {
+        auto const cur_val = static_cast<int32_t>(static_cast<float>(n) / inc);
+        auto const cur_key = static_cast<int32_t>(keys[n]);
+        valuepos[cur_key] = cur_val;
+      }
     }
 
     GenericImage<rgb3> image_output(image_input.width(), image_input.height());

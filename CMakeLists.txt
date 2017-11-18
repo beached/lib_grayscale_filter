@@ -38,17 +38,6 @@ externalproject_add(
 	TEST_COMMAND ""
 )
 
-externalproject_add( 
-	function_stream_prj
-	GIT_REPOSITORY "https://github.com/beached/function_stream.git"
-	GIT_TAG "master"
-	SOURCE_DIR "${CMAKE_BINARY_DIR}/dependencies/function_stream"
-	INSTALL_DIR "${CMAKE_BINARY_DIR}/install"
-	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/install
-	PATCH_COMMAND ""
-	TEST_COMMAND ""
-)
-
 include_directories( SYSTEM "${CMAKE_BINARY_DIR}/install/include" )
 link_directories( "${CMAKE_BINARY_DIR}/install/lib" )
 include_directories( "./include" )
