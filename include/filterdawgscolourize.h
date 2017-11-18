@@ -3,14 +3,14 @@
 // Copyright (c) 2016 Darrell Wright
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files( the "Software" ), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
-// copies of the Software, and to permit persons to whom the Software is
+// of this software and associated documentation files( the "Software" ), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and / or
+// sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -19,7 +19,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-
 
 #pragma once
 
@@ -31,28 +30,39 @@
 #endif
 #include <unordered_map>
 
-
 namespace daw {
-	namespace imaging {
-		struct FilterDAWGSColourize {
-			enum class repaint_formulas : uint8_t { Ratio = 0, YUV = 1, Multiply_1 = 2, Addition = 3, Multiply_2 = 4, HSL = 5 };
+namespace imaging {
+struct FilterDAWGSColourize {
+  enum class repaint_formulas : uint8_t {
+    Ratio = 0,
+    YUV = 1,
+    Multiply_1 = 2,
+    Addition = 3,
+    Multiply_2 = 4,
+    HSL = 5
+  };
 
-			static GenericImage<rgb3> filter( GenericImage<rgb3> const &input_image, GenericImage<rgb3> const & input_gsimage, FilterDAWGSColourize::repaint_formulas const repaint_formula = FilterDAWGSColourize::repaint_formulas::Ratio );
+  static GenericImage<rgb3>
+  filter(GenericImage<rgb3> const &input_image,
+         GenericImage<rgb3> const &input_gsimage,
+         FilterDAWGSColourize::repaint_formulas const repaint_formula =
+             FilterDAWGSColourize::repaint_formulas::Ratio);
 
-			static std::unordered_map<std::string, repaint_formulas> get_repaint_formulas();
+  static std::unordered_map<std::string, repaint_formulas>
+  get_repaint_formulas();
 
 #ifdef DAWFILTER_USEPYTHON
-			static void register_python( );
+  static void register_python();
 #endif
-		};	// struct FilterDAWGSColourize
-	}	// namespace imaging
-}	// namespace daw
+}; // struct FilterDAWGSColourize
+} // namespace imaging
+} // namespace daw
 
 namespace std {
-	template<> struct hash<daw::imaging::FilterDAWGSColourize::repaint_formulas> {
-		size_t operator( )( daw::imaging::FilterDAWGSColourize::repaint_formulas rf ) const { 
-			return static_cast<size_t>( rf );
-		}
-	};	// struct hash<daw::imaging::FilterDAWGSColourize::repaint_formulas>
-}	// namespace std
-
+template <> struct hash<daw::imaging::FilterDAWGSColourize::repaint_formulas> {
+  size_t
+  operator()(daw::imaging::FilterDAWGSColourize::repaint_formulas rf) const {
+    return static_cast<size_t>(rf);
+  }
+}; // struct hash<daw::imaging::FilterDAWGSColourize::repaint_formulas>
+} // namespace std

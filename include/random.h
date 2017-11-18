@@ -3,14 +3,14 @@
 // Copyright (c) 2016 Darrell Wright
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files( the "Software" ), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
-// copies of the Software, and to permit persons to whom the Software is
+// of this software and associated documentation files( the "Software" ), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and / or
+// sell copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -20,30 +20,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 #pragma once
 
-#include <cstdlib>
 #include <cstdint>
+#include <cstdlib>
 
 namespace random_help {
-	double uniform_deviate( int32_t seed );
-	uint32_t time_seed( );
-}
+double uniform_deviate(int32_t seed);
+uint32_t time_seed();
+} // namespace random_help
 
-template<class T, T min = 0, T max = static_cast<T>( 100000000 )>
-class Random {
-	static int32_t getNextValue( const T low, const T high ) {
-		return static_cast<int32_t>( static_cast<double>( low ) + random_help::uniform_deviate( rand( ) )*static_cast<double>( high - low ) );
-	}
+template <class T, T min = 0, T max = static_cast<T>(100000000)> class Random {
+  static int32_t getNextValue(const T low, const T high) {
+    return static_cast<int32_t>(static_cast<double>(low) +
+                                random_help::uniform_deviate(rand()) *
+                                    static_cast<double>(high - low));
+  }
+
 public:
-	static T getNext( ) {
-		static auto has_seeded = false;
-		if( !has_seeded ) {
-			has_seeded = true;
-			srand( random_help::time_seed( ) );
-		}
-		return static_cast<T>(getNextValue( min, max ));
-	}
+  static T getNext() {
+    static auto has_seeded = false;
+    if (!has_seeded) {
+      has_seeded = true;
+      srand(random_help::time_seed());
+    }
+    return static_cast<T>(getNextValue(min, max));
+  }
 };
-

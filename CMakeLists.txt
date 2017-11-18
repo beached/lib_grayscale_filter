@@ -14,17 +14,16 @@ find_package( Boost 1.58.0 REQUIRED COMPONENTS system filesystem regex unit_test
 find_package( FreeImage REQUIRED )
 
 if( ${CMAKE_CXX_COMPILER_ID} STREQUAL 'MSVC' )
-	add_compile_options( -D_WIN32_WINNT=0x0601 )
+	add_compile_options( -D_WIN32_WINNT=0x0601 /std:c++latest )
 else( )
-	find_package( Threads REQUIRED )
-	if( THREADS_HAVE_PTHREAD_ARG )
-		set( COMPILER_SPECifIC_LIBS, "-lpthread" )
-	endif( )
-
 	if( ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "AppleClang" )
-		add_compile_options(-std=c++14 -Weverything -Wno-c++98-compat -Wno-covered-switch-default -Wno-padded -Wno-exit-time-destructors -Wno-c++98-compat-pedantic -Wno-unused-parameter -Wno-missing-noreturn -Wno-missing-prototypes -Wno-disabled-macro-expansion)		
+		add_compile_options(-std=c++14 -march=native -pthread -Weverything -Wno-c++98-compat -Wno-covered-switch-default -Wno-padded -Wno-exit-time-destructors -Wno-c++98-compat-pedantic -Wno-unused-parameter -Wno-missing-noreturn -Wno-missing-prototypes -Wno-disabled-macro-expansion)
+		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
+		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 	elseif( ${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" )
-		add_compile_options( -std=c++14 -Wall -Wno-deprecated-declarations )
+		add_compile_options(-std=c++14 -march=native -pthread -Wall -Wno-deprecated-declarations -Wduplicated-cond -Wlogical-op -Wnull-dereference -Wold-style-cast -Wshadow)
+		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
+		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 	endif( )
 endif( )
 
@@ -33,6 +32,17 @@ externalproject_add(
 	GIT_REPOSITORY "https://github.com/beached/header_libraries.git"
 	GIT_TAG "master"
 	SOURCE_DIR "${CMAKE_BINARY_DIR}/dependencies/header_libraries"
+	INSTALL_DIR "${CMAKE_BINARY_DIR}/install"
+	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/install
+	PATCH_COMMAND ""
+	TEST_COMMAND ""
+)
+
+externalproject_add( 
+	function_stream_prj
+	GIT_REPOSITORY "https://github.com/beached/function_stream.git"
+	GIT_TAG "master"
+	SOURCE_DIR "${CMAKE_BINARY_DIR}/dependencies/function_stream"
 	INSTALL_DIR "${CMAKE_BINARY_DIR}/install"
 	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/install
 	PATCH_COMMAND ""
@@ -48,6 +58,8 @@ include_directories( SYSTEM ${FREEIMAGE_INCLUDE_DIRS} )
 link_directories( ${FREEIMAGE_LIBRARIES} )
 
 set( HEADER_FOLDER "include" )
+set( SOURCE_FOLDER "src" )
+set( TEST_FOLDER "tests" )
 
 SET( HEADER_FILES
 	${HEADER_FOLDER}/filterdawgscolourize.h
@@ -62,24 +74,20 @@ SET( HEADER_FILES
 )
 
 set( SOURCE_FILES
-	filterdawgscolourize.cpp
-	filterdawgs.cpp
-	filterdawgs2.cpp
-	filterrotate.cpp
-	fimage.cpp
-	genericimage.cpp
-	random.cpp
+	${SOURCE_FOLDER}/filterdawgs2.cpp
+	${SOURCE_FOLDER}/filterdawgscolourize.cpp
+	${SOURCE_FOLDER}/filterdawgs.cpp
+	${SOURCE_FOLDER}/filterrotate.cpp
+	${SOURCE_FOLDER}/fimage.cpp
+	${SOURCE_FOLDER}/genericimage.cpp
+	${SOURCE_FOLDER}/random.cpp
 )
-
-#add_library( grayscale_filter STATIC ${HEADER_FILES} ${SOURCE_FILES} )
-#add_dependencies( grayscale_filter header_libraries_prj )
-#target_link_libraries( grayscale_filter ${Boost_LIBRARIES} ${FREEIMAGE_LIBRARIES} )
 
 add_library( grayscale_filter ${HEADER_FILES} ${SOURCE_FILES} )
 add_dependencies( grayscale_filter header_libraries_prj )
 target_link_libraries( grayscale_filter ${Boost_LIBRARIES} ${FREEIMAGE_LIBRARIES} )
 
-#install( TARGETS grayscale_filter DESTINATION lib )
 install( TARGETS grayscale_filter DESTINATION lib )
 install( DIRECTORY ${HEADER_FOLDER}/ DESTINATION include/daw/grayscale_filter )
+
 

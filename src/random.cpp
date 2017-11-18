@@ -20,45 +20,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma once
+#include "random.h"
 
-namespace daw {
-namespace imaging {
-namespace helpers {
-template <class T> T max3(T value1, T value2, T value3) {
-  T maxval = value1;
-  if (value2 > maxval) {
-    maxval = value2;
+#include <climits>
+#include <cstdlib>
+#include <ctime>
+#include <daw/daw_exception.h>
+#include <limits>
+
+namespace random_help {
+uint32_t time_seed() {
+  auto now = time(nullptr);
+  auto p = reinterpret_cast<uint8_t *>(&now);
+  daw::exception::daw_throw_on_null(
+      p, "Point to a struct should never return null");
+  auto sizeof_now = sizeof(now);
+  uint32_t seed = 0;
+  for (size_t i = 0; i < sizeof_now; ++i) {
+    seed = seed * (std::numeric_limits<uint8_t>::max() + 2U) + p[i];
   }
-  if (value3 > maxval) {
-    maxval = value3;
-  }
-  return maxval;
+  return seed;
 }
 
-template <class T> T min3(T value1, T value2, T value3) {
-  T maxval = value1;
-  if (value2 < maxval) {
-    maxval = value2;
-  }
-  if (value3 < maxval) {
-    maxval = value3;
-  }
-  return maxval;
-}
-
-template <class T> void clampvalue(T &value, T min, T max) {
-  if (value < min) {
-    value = min;
-  } else if (value > max) {
-    value = max;
-  }
-}
-
-template <class T> float too_gs_small(T red, T green, T blue) {
-  return 0.299f * static_cast<float>(red) + 0.587f * static_cast<float>(green) +
-         0.114f * static_cast<float>(blue);
-}
-} // namespace helpers
-} // namespace imaging
-} // namespace daw
+double uniform_deviate(int32_t seed) { return seed * (1.0 / (RAND_MAX + 1.0)); }
+} // namespace random_help
