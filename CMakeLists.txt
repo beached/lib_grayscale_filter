@@ -76,6 +76,14 @@ add_library( grayscale_filter ${HEADER_FILES} ${SOURCE_FILES} )
 add_dependencies( grayscale_filter header_libraries_prj )
 target_link_libraries( grayscale_filter ${Boost_LIBRARIES} ${FREEIMAGE_LIBRARIES} )
 
+add_custom_target( check COMMAND ${CMAKE_CTEST_COMMAND} )
+
+add_executable( image_in_out_test_bin EXCLUDE_FROM_ALL ${FUNCTION_STREAM_HEADER_FILES} ${TASK_SCHEDULER_HEADER_FILES} ${TEST_FOLDER}/image_in_out_test.cpp )
+target_link_libraries( image_in_out_test_bin grayscale_filter_lib ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} )
+add_dependencies( image_in_out_test_bin header_libraries_prj )
+add_test( image_in_out_test image_in_out_test_bin "${PROJECT_SOURCE_DIR}/img_in_001.jpg" "${CMAKE_BINARY_DIR}/img_out_001.jpg" )
+add_dependencies( check image_in_out_test_bin )
+
 install( TARGETS grayscale_filter DESTINATION lib )
 install( DIRECTORY ${HEADER_FOLDER}/ DESTINATION include/daw/grayscale_filter )
 
