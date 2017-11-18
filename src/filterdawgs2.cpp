@@ -34,6 +34,7 @@
 
 #include <daw/daw_array.h>
 #include <daw/daw_container_algorithm.h>
+#include <daw/daw_exception.h>
 #include <daw/daw_math.h>
 #include <daw/daw_static_array.h>
 #include <daw/daw_utility.h>
@@ -166,7 +167,7 @@ namespace daw {
 			auto weight_blue = static_cast<double>( std::get<2>( sum ) ) / mx;
 			auto dv = ( weight_red + weight_green + weight_blue ) / 3.0;
 
-			assert( image_input.size( ) <= image_output.size( ) );
+			daw::exception::daw_throw_on_false( image_input.size( ) <= image_output.size( ) );
 			// TODO: make parallel
 			daw::container::transform( image_input, image_output.begin( ), [&]( rgb3 const &rgb ) {
 				auto result = static_cast<uint8_t>(

@@ -20,18 +20,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+
+#include <boost/math/special_functions/round.hpp>
+#include <cmath>
+#include <limits>
+#include <map>
+
+#include <daw/daw_algorithm.h>
+#include <daw/daw_container_algorithm.h>
+#include <daw/daw_exception.h>
+
 #include "filterdawgscolourize.h"
 #include "genericimage.h"
 #include "genericrgb.h"
 #include "helpers.h"
-#include <boost/math/special_functions/round.hpp>
-#include <cassert>
-#include <cmath>
-#include <daw/daw_algorithm.h>
-#include <daw/daw_container_algorithm.h>
-#include <limits>
-#include <map>
-//#include <omp.h>
 
 namespace daw {
 	namespace imaging {
@@ -54,7 +56,7 @@ namespace daw {
 
 			GenericImage<GenericRGB<int32_t>> repaint_ratio( GenericImage<rgb3> const &input_image,
 			                                                 GenericImage<rgb3> const &input_gsimage ) {
-				assert( input_image.size( ) == input_gsimage.size( ) );
+				daw::exception::daw_throw_on_false( input_image.size( ) == input_gsimage.size( ) );
 				GenericImage<GenericRGB<int32_t>> output_image( input_image.width( ), input_image.height( ) );
 				daw::algorithm::transform_many(
 				  input_image.begin( ), input_image.end( ), input_gsimage.begin( ), output_image.begin( ),
@@ -85,7 +87,7 @@ namespace daw {
 
 			GenericImage<GenericRGB<int32_t>> repaint_yuv( GenericImage<rgb3> const &input_image,
 			                                               GenericImage<rgb3> const &input_gsimage ) {
-				assert( input_image.size( ) == input_gsimage.size( ) );
+				daw::exception::daw_throw_on_false( input_image.size( ) == input_gsimage.size( ) );
 				GenericImage<GenericRGB<int32_t>> output_image( input_image.width( ), input_image.height( ) );
 				daw::algorithm::transform_many( input_image.begin( ), input_image.end( ), input_gsimage.begin( ),
 				                                output_image.begin( ), []( rgb3 orig, rgb3 const grayscale3 ) {
@@ -110,7 +112,7 @@ namespace daw {
 
 			GenericImage<GenericRGB<int32_t>> repaint_multiply_1( GenericImage<rgb3> const &input_image,
 			                                                      GenericImage<rgb3> const &input_gsimage ) {
-				assert( input_image.size( ) == input_gsimage.size( ) );
+				daw::exception::daw_throw_on_false( input_image.size( ) == input_gsimage.size( ) );
 				GenericImage<GenericRGB<int32_t>> output_image( input_image.width( ), input_image.height( ) );
 				daw::algorithm::transform_many( input_image.begin( ), input_image.end( ), input_gsimage.begin( ),
 				                                output_image.begin( ), []( rgb3 orig, rgb3 const grayscale3 ) {
@@ -123,7 +125,7 @@ namespace daw {
 
 			GenericImage<GenericRGB<int32_t>> repaint_addition( GenericImage<rgb3> const &input_image,
 			                                                    GenericImage<rgb3> const &input_gsimage ) {
-				assert( input_image.size( ) == input_gsimage.size( ) );
+				daw::exception::daw_throw_on_false( input_image.size( ) == input_gsimage.size( ) );
 				GenericImage<GenericRGB<int32_t>> output_image( input_image.width( ), input_image.height( ) );
 				daw::algorithm::transform_many( input_image.begin( ), input_image.end( ), input_gsimage.begin( ),
 				                                output_image.begin( ), []( rgb3 orig, rgb3 const grayscale3 ) {
@@ -136,7 +138,7 @@ namespace daw {
 
 			GenericImage<GenericRGB<int32_t>> repaint_multiply_2( GenericImage<rgb3> const &input_image,
 			                                                      GenericImage<rgb3> const &input_gsimage ) {
-				assert( input_image.size( ) == input_gsimage.size( ) );
+				daw::exception::daw_throw_on_false( input_image.size( ) == input_gsimage.size( ) );
 				GenericImage<GenericRGB<int32_t>> output_image( input_image.width( ), input_image.height( ) );
 				daw::algorithm::transform_many(
 				  input_image.begin( ), input_image.end( ), input_gsimage.begin( ), output_image.begin( ),
@@ -158,7 +160,7 @@ namespace daw {
 
 			GenericImage<GenericRGB<int32_t>> repaint_hsl( GenericImage<rgb3> const &input_image,
 			                                               GenericImage<rgb3> const &input_gsimage ) {
-				assert( input_image.size( ) == input_gsimage.size( ) );
+				daw::exception::daw_throw_on_false( input_image.size( ) == input_gsimage.size( ) );
 				GenericImage<GenericRGB<int32_t>> output_image( input_image.width( ), input_image.height( ) );
 				daw::algorithm::transform_many( input_image.begin( ), input_image.end( ), input_gsimage.begin( ),
 				                                output_image.begin( ), []( rgb3 orig, rgb3 const grayscale3 ) {

@@ -20,6 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include <daw/daw_exception.h>
 #include <daw/daw_random.h>
 #include <daw/daw_string_view.h>
 
@@ -74,12 +75,14 @@ namespace daw {
 
 		void GenericImage<rgb3>::to_file( daw::string_view image_filename, GenericImage<rgb3> const &image_input ) {
 			try {
-				assert( image_input.width( ) <= static_cast<size_t>( std::numeric_limits<int>::max( ) ) );
-				assert( image_input.height( ) <= static_cast<size_t>( std::numeric_limits<int>::max( ) ) );
+				daw::exception::daw_throw_on_false( image_input.width( ) <=
+				                                    static_cast<size_t>( std::numeric_limits<int>::max( ) ) );
+				daw::exception::daw_throw_on_false( image_input.height( ) <=
+				                                    static_cast<size_t>( std::numeric_limits<int>::max( ) ) );
 				FreeImage image_output( FreeImage_Allocate( static_cast<int>( image_input.width( ) ),
 				                                            static_cast<int>( image_input.height( ) ), 24 ) );
 				{
-					assert( image_input.height( ) > 0 );
+					daw::exception::daw_throw_on_false( image_input.height( ) > 0 );
 					auto const maxy = image_input.height( ) - 1;
 					//#pragma omp parallel for
 					for( size_t y = 0; y < image_input.height( ); ++y ) {
@@ -161,8 +164,10 @@ namespace daw {
 				GenericImage<rgb3> image_output( image_input.width( ), image_input.height( ) );
 
 				{
-					assert( image_output.width( ) <= static_cast<size_t>( std::numeric_limits<unsigned>::max( ) ) );
-					assert( image_output.height( ) <= static_cast<size_t>( std::numeric_limits<unsigned>::max( ) ) );
+					daw::exception::daw_throw_on_false( image_output.width( ) <=
+					                                    static_cast<size_t>( std::numeric_limits<unsigned>::max( ) ) );
+					daw::exception::daw_throw_on_false( image_output.height( ) <=
+					                                    static_cast<size_t>( std::numeric_limits<unsigned>::max( ) ) );
 					auto const maxy = image_output.height( ) - 1;
 
 					for( size_t y = 0; y < image_output.height( ); ++y ) {

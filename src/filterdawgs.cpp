@@ -92,7 +92,7 @@ namespace daw {
 				          << valuepos.size( ) << std::endl;
 				GenericImage<rgb3> image_output( image_input.width( ), image_input.height( ) );
 
-				assert( image_input.size( ) <= image_output.size( ) );
+				daw::exception::daw_throw_on_false( image_input.size( ) <= image_output.size( ) );
 				// TODO: make parallel
 				daw::container::transform( image_input, image_output.begin( ),
 				                           []( rgb3 const &rgb ) { return static_cast<uint8_t>( rgb.too_float_gs( ) ); } );
