@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 //
-// Copyright (c) 2016 Darrell Wright
+// Copyright (c) 2016-2017 Darrell Wright
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files( the "Software" ), to
@@ -23,42 +23,46 @@
 #pragma once
 
 namespace daw {
-namespace imaging {
-namespace helpers {
-template <class T> T max3(T value1, T value2, T value3) {
-  T maxval = value1;
-  if (value2 > maxval) {
-    maxval = value2;
-  }
-  if (value3 > maxval) {
-    maxval = value3;
-  }
-  return maxval;
-}
+	namespace imaging {
+		namespace helpers {
+			template<class T>
+			T max3( T value1, T value2, T value3 ) {
+				T maxval = value1;
+				if( value2 > maxval ) {
+					maxval = value2;
+				}
+				if( value3 > maxval ) {
+					maxval = value3;
+				}
+				return maxval;
+			}
 
-template <class T> T min3(T value1, T value2, T value3) {
-  T maxval = value1;
-  if (value2 < maxval) {
-    maxval = value2;
-  }
-  if (value3 < maxval) {
-    maxval = value3;
-  }
-  return maxval;
-}
+			template<class T>
+			T min3( T value1, T value2, T value3 ) {
+				T maxval = value1;
+				if( value2 < maxval ) {
+					maxval = value2;
+				}
+				if( value3 < maxval ) {
+					maxval = value3;
+				}
+				return maxval;
+			}
 
-template <class T> void clampvalue(T &value, T min, T max) {
-  if (value < min) {
-    value = min;
-  } else if (value > max) {
-    value = max;
-  }
-}
+			template<class T>
+			void clampvalue( T &value, T min, T max ) {
+				if( value < min ) {
+					value = min;
+				} else if( value > max ) {
+					value = max;
+				}
+			}
 
-template <class T> float too_gs_small(T red, T green, T blue) {
-  return 0.299f * static_cast<float>(red) + 0.587f * static_cast<float>(green) +
-         0.114f * static_cast<float>(blue);
-}
-} // namespace helpers
-} // namespace imaging
+			template<class T>
+			float too_gs_small( T red, T green, T blue ) {
+				return 0.299f * static_cast<float>( red ) + 0.587f * static_cast<float>( green ) +
+				       0.114f * static_cast<float>( blue );
+			}
+		} // namespace helpers
+	}   // namespace imaging
 } // namespace daw

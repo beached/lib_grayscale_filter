@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 //
-// Copyright (c) 2016 Darrell Wright
+// Copyright (c) 2016-2017 Darrell Wright
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files( the "Software" ), to
@@ -27,32 +27,32 @@
 #include <daw/daw_string_view.h>
 
 namespace daw {
-namespace imaging {
-class FreeImage final {
-  FIBITMAP *m_bitmap;
+	namespace imaging {
+		class FreeImage final {
+			FIBITMAP *m_bitmap;
 
-public:
-  using pos_t = decltype(FreeImage_GetWidth(m_bitmap));
-  using bpp_t = decltype(FreeImage_GetBPP(m_bitmap));
-  FreeImage() = delete;
-  FreeImage(FIBITMAP *bitmap);
-  FreeImage(FIBITMAP *bitmap, daw::string_view errmsg);
-  ~FreeImage();
-  FreeImage(FreeImage const &other);
-  FreeImage &operator=(FreeImage const &rhs);
-  FreeImage(FreeImage &&) = default;
-  FreeImage &operator=(FreeImage &&) = default;
+		public:
+			using pos_t = decltype( FreeImage_GetWidth( m_bitmap ) );
+			using bpp_t = decltype( FreeImage_GetBPP( m_bitmap ) );
+			FreeImage( ) = delete;
+			FreeImage( FIBITMAP *bitmap );
+			FreeImage( FIBITMAP *bitmap, daw::string_view errmsg );
+			~FreeImage( );
+			FreeImage( FreeImage const &other );
+			FreeImage &operator=( FreeImage const &rhs );
+			FreeImage( FreeImage && ) = default;
+			FreeImage &operator=( FreeImage && ) = default;
 
-  FreeImage &take(FreeImage &other);
-  FreeImage &take(FIBITMAP *bitmap);
-  void close();
+			FreeImage &take( FreeImage &other );
+			FreeImage &take( FIBITMAP *bitmap );
+			void close( );
 
-  FIBITMAP *ptr();
-  FIBITMAP const *ptr() const;
+			FIBITMAP *ptr( );
+			FIBITMAP const *ptr( ) const;
 
-  pos_t height() const;
-  pos_t width() const;
-  bpp_t bpp() const;
-};
-} // namespace imaging
+			pos_t height( ) const;
+			pos_t width( ) const;
+			bpp_t bpp( ) const;
+		};
+	} // namespace imaging
 } // namespace daw
