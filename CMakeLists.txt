@@ -71,7 +71,6 @@ set( SOURCE_FILES
 	${SOURCE_FOLDER}/filterdawgscolourize.cpp
 	${SOURCE_FOLDER}/filterdawgs.cpp
 	${SOURCE_FOLDER}/filterrotate.cpp
-	${SOURCE_FOLDER}/fimage.cpp
 	${SOURCE_FOLDER}/genericimage.cpp
 )
 

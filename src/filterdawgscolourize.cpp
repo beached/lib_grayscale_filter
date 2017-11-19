@@ -37,7 +37,7 @@
 namespace daw {
 	namespace imaging {
 		namespace {
-			float colour_calc( float c, float t1, float t2 ) {
+			constexpr float colour_calc( float c, float t1, float t2 ) noexcept {
 				if( c < 0.0f ) {
 					c += 1.0f;
 				} else if( c > 1.0f ) {
@@ -247,7 +247,7 @@ namespace daw {
 			}
 
 			template<typename T>
-			std::pair<GenericRGB<T>, GenericRGB<T>> minmax_element( GenericImage<GenericRGB<T>> const &img ) {
+			constexpr std::pair<GenericRGB<T>, GenericRGB<T>> minmax_element( GenericImage<GenericRGB<T>> const &img ) noexcept {
 				std::pair<GenericRGB<T>, GenericRGB<T>> result{
 				  {std::numeric_limits<T>::max( ), std::numeric_limits<T>::max( ), std::numeric_limits<T>::max( )},
 				  {std::numeric_limits<T>::min( ), std::numeric_limits<T>::min( ), std::numeric_limits<T>::min( )}};

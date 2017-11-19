@@ -39,45 +39,48 @@ namespace daw {
 			T green;
 			T red;
 
-			GenericRGB( ) : blue( 0 ), green( 0 ), red( 0 ) {}
-			GenericRGB( T const &GS ) : blue( GS ), green( GS ), red( GS ) {}
-			GenericRGB( T const &Red, T const &Green, T const &Blue ) : blue( Blue ), green( Green ), red( Red ) {}
+			constexpr GenericRGB( ) noexcept : blue{0}, green{0}, red{0} {}
+			constexpr GenericRGB( T const &GS ) noexcept : blue{GS}, green{GS}, red{GS} {}
 
-			void set_all( T const &Red, T const &Green, T const &Blue ) {
+			constexpr GenericRGB( T const &Red, T const &Green, T const &Blue ) noexcept
+			  : blue{Blue}, green{Green}, red{Red} {}
+
+			constexpr void set_all( T const &Red, T const &Green, T const &Blue ) noexcept {
 				blue = Blue;
 				green = Green;
 				red = Red;
 			}
 
-			void set_all( T const &grayscale ) {
+			constexpr void set_all( T const &grayscale ) noexcept {
 				blue = grayscale;
 				green = grayscale;
 				red = grayscale;
 			}
 
-			GenericRGB( GenericRGB const & ) = default;
-			GenericRGB( GenericRGB && ) = default;
-			GenericRGB &operator=( GenericRGB const & ) = default;
-			GenericRGB &operator=( GenericRGB && ) = default;
-			~GenericRGB( ) = default;
+			constexpr GenericRGB( GenericRGB const & ) noexcept = default;
+			constexpr GenericRGB( GenericRGB && ) noexcept = default;
+			constexpr GenericRGB &operator=( GenericRGB const & ) noexcept = default;
+			constexpr GenericRGB &operator=( GenericRGB && ) noexcept = default;
 
-			GenericRGB &operator=( T const &src ) {
+			~GenericRGB( ) noexcept = default;
+
+			constexpr GenericRGB &operator=( T const &src ) noexcept {
 				red = src;
 				green = src;
 				blue = src;
 				return *this;
 			}
 
-			static float colform( GenericRGB<T> const &c, float Red, float Green, float Blue ) {
+			static constexpr float colform( GenericRGB<T> const &c, float Red, float Green, float Blue ) noexcept {
 				return Red * static_cast<float>( c.red ) + Green * static_cast<float>( c.green ) +
 				       Blue * static_cast<float>( c.blue );
 			}
 
-			float colform( float Red, float Green, float Blue ) const {
+			constexpr float colform( float Red, float Green, float Blue ) const noexcept {
 				return colform( *this, std::move( Red ), std::move( Green ), std::move( Blue ) );
 			}
 
-			void clampvalue( T const &min, T const &max ) {
+			constexpr void clampvalue( T const &min, T const &max ) noexcept {
 				if( red < min ) {
 					red = min;
 				} else if( red > max ) {
@@ -95,7 +98,7 @@ namespace daw {
 				}
 			}
 
-			T min( ) const {
+			constexpr T min( ) const noexcept {
 				T ret = red;
 				if( green < ret ) {
 					ret = green;
@@ -106,7 +109,7 @@ namespace daw {
 				return ret;
 			}
 
-			T max( ) const {
+			constexpr T max( ) const noexcept {
 				T ret = red;
 				if( green > ret ) {
 					ret = green;
@@ -117,24 +120,24 @@ namespace daw {
 				return ret;
 			}
 
-			void mul( T const &value ) {
+			constexpr void mul( T const &value ) noexcept {
 				blue *= value;
 				green *= value;
 				red *= value;
 			}
 
-			void div( T const &value ) {
+			constexpr void div( T const &value ) noexcept {
 				blue /= value;
 				green /= value;
 				red /= value;
 			}
 
-			float too_float_gs( ) const {
+			constexpr float too_float_gs( ) const noexcept {
 				return helpers::too_gs_small( red, green, blue );
 			}
 
 			template<typename V>
-			GenericRGB<V> as( ) {
+			constexpr GenericRGB<V> as( ) noexcept {
 				return GenericRGB<V>( static_cast<V>( red ), static_cast<V>( green ), static_cast<V>( blue ) );
 			}
 
@@ -150,7 +153,7 @@ namespace daw {
 		};
 
 		template<typename L, typename R>
-		void min( GenericRGB<L> const &value, GenericRGB<R> &cur_min ) {
+		constexpr void min( GenericRGB<L> const &value, GenericRGB<R> &cur_min ) noexcept {
 			if( value.red < cur_min.red ) {
 				cur_min.red = value.red;
 			}
@@ -163,7 +166,7 @@ namespace daw {
 		}
 
 		template<typename L, typename R>
-		void max( GenericRGB<L> const &value, GenericRGB<R> &cur_max ) {
+		constexpr void max( GenericRGB<L> const &value, GenericRGB<R> &cur_max ) noexcept {
 			if( value.red > cur_max.red ) {
 				cur_max.red = value.red;
 			}

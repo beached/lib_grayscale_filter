@@ -86,10 +86,6 @@ namespace daw {
 			return image_output;
 		}
 
-		uint32_t FilterDAWGS::too_gs( rgb3 const &pixel ) {
-			return 19595 * pixel.red + 38469 * pixel.green + 7471 * pixel.blue; // 0.299r + 0.587g + 0.114b
-		}
-
 #ifdef DAWFILTER_USEPYTHON
 		void FilterDAWGS::register_python( std::string const nameoftype ) {
 			boost::python::def( nameoftype.c_str( ), &FilterDAWGS::filter );

@@ -43,136 +43,10 @@
 
 namespace daw {
 	namespace imaging {
-		namespace impl {
-			template<typename T>
-			struct fixed_array_t {
-				using value_type = T;
-				using iterator = value_type *;
-				using const_iterator = value_type const *;
-				using reference = value_type &;
-				using const_reference = value_type const &;
-				using size_type = size_t;
-
-			private:
-				value_type *m_values;
-				size_type m_size;
-
-			public:
-				fixed_array_t( ) = delete;
-
-				fixed_array_t( size_t size ) : m_values{new T[size]}, m_size{nullptr == m_values ? 0 : size} {}
-
-				~fixed_array_t( ) {
-					if( nullptr != m_values ) {
-						delete[] m_values;
-						m_values = nullptr;
-					}
-					m_size = 0;
-				}
-
-				fixed_array_t( fixed_array_t &&other ) noexcept
-				  : m_values{std::exchange( other.m_values, nullptr )}, m_size{std::exchange( other.m_size, 0 )} {}
-
-				fixed_array_t( fixed_array_t const &other )
-				  : m_values{other.m_size > 0 ? new T[other.m_size] : nullptr}, m_size{other.m_size} {
-
-					std::copy_n( other.m_values, other.m_size, m_values );
-				}
-
-				friend void swap( fixed_array_t &lhs, fixed_array_t &rhs ) noexcept {
-					using std::swap;
-					swap( lhs.m_values, rhs.m_values );
-					swap( lhs.m_size, rhs.m_size );
-				}
-
-				fixed_array_t &operator=( fixed_array_t &&rhs ) noexcept {
-					if( this != &rhs ) {
-						fixed_array_t tmp{std::move( rhs )};
-						using std::swap;
-						swap( *this, tmp );
-					}
-					return *this;
-				}
-
-				fixed_array_t &operator=( fixed_array_t const &rhs ) {
-					if( this != &rhs ) {
-						fixed_array_t tmp{rhs};
-						using std::swap;
-						swap( *this, tmp );
-					}
-					return *this;
-				}
-
-				explicit operator bool( ) const noexcept {
-					return nullptr != m_values;
-				}
-
-				size_type size( ) const noexcept {
-					return m_size;
-				}
-
-				reference operator[]( size_type pos ) noexcept {
-					return *( m_values + pos );
-				}
-
-				const_reference operator[]( size_type pos ) const noexcept {
-					return *( m_values + pos );
-				}
-
-				iterator data( ) noexcept {
-					return m_values;
-				}
-
-				const_iterator data( ) const noexcept {
-					return m_values;
-				}
-
-				iterator begin( ) noexcept {
-					return m_values;
-				}
-
-				const_iterator begin( ) const noexcept {
-					return m_values;
-				}
-
-				const_iterator cbegin( ) const noexcept {
-					return m_values;
-				}
-
-				iterator end( ) noexcept {
-					return m_values + m_size;
-				}
-
-				const_iterator end( ) const noexcept {
-					return m_values + m_size;
-				}
-
-				const_iterator cend( ) const noexcept {
-					return m_values + m_size;
-				}
-
-				reference front( ) {
-					return *m_values;
-				}
-
-				const_reference front( ) const {
-					return *m_values;
-				}
-
-				reference back( ) {
-					return *( m_values + m_size - 1 );
-				}
-
-				const_reference back( ) const {
-					return *( m_values + m_size - 1 );
-				}
-
-			}; // fixed_array_t
-		}    // namespace impl
 		template<class T>
 		struct GenericImage {
 			using value_type = ::std::decay_t<T>;
-			using values_type = impl::fixed_array_t<value_type>;
+			using values_type = std::vector<value_type>;
 			using iterator = typename values_type::iterator;
 			using const_iterator = typename values_type::const_iterator;
 			using reference = typename values_type::reference;
@@ -194,52 +68,26 @@ namespace daw {
 			  , m_id{daw::randint<id_t>( )}
 			  , m_image_data( width * height ) {}
 
-			GenericImage( GenericImage const &other )
-			  : m_width{other.m_width}
-			  , m_height{other.m_height}
-			  , m_size{other.m_size}
-			  , m_id{daw::randint<id_t>( )}
-			  , m_image_data( other.m_size ) {
+			GenericImage( GenericImage const & ) = default;
+			GenericImage( GenericImage && ) noexcept = default;
+			GenericImage &operator=( GenericImage const & ) = default;
+			GenericImage &operator=( GenericImage && ) noexcept = default;
 
-				std::copy_n( other.m_image_data.begin( ), other.m_size, m_image_data.begin( ) );
-			}
+			~GenericImage( ) = default;
 
-			GenericImage( GenericImage && ) = default;
-			GenericImage &operator=( GenericImage && ) = default;
-
-			friend void swap( GenericImage &lhs, GenericImage &rhs ) noexcept {
-				using std::swap;
-				swap( lhs.m_width, rhs.m_width );
-				swap( lhs.m_height, rhs.m_height );
-				swap( lhs.m_size, rhs.m_size );
-				swap( lhs.m_id, rhs.m_id );
-				swap( lhs.m_image_data, rhs.m_image_data );
-			}
-
-			GenericImage &operator=( GenericImage const &rhs ) {
-				if( this != &rhs ) {
-					GenericImage tmp{rhs};
-					using std::swap;
-					swap( *this, tmp );
-				}
-				return *this;
-			}
-
-			virtual ~GenericImage( ) = default;
-
-			size_t width( ) const {
+			size_t width( ) const noexcept {
 				return m_width;
 			}
 
-			size_t height( ) const {
+			size_t height( ) const noexcept {
 				return m_height;
 			}
 
-			size_t size( ) const {
+			size_t size( ) const noexcept {
 				return m_size;
 			}
 
-			size_t id( ) const {
+			size_t id( ) const noexcept {
 				return m_id;
 			}
 
@@ -269,27 +117,27 @@ namespace daw {
 				return arry( )[pos];
 			}
 
-			iterator begin( ) {
+			iterator begin( ) noexcept {
 				return m_image_data.begin( );
 			}
 
-			const_iterator begin( ) const {
+			const_iterator begin( ) const noexcept {
 				return m_image_data.begin( );
 			}
 
-			const_iterator cbegin( ) const {
+			const_iterator cbegin( ) const noexcept {
 				return m_image_data.begin( );
 			}
 
-			iterator end( ) {
+			iterator end( ) noexcept {
 				return m_image_data.end( );
 			}
 
-			const_iterator end( ) const {
+			const_iterator end( ) const noexcept {
 				return m_image_data.end( );
 			}
 
-			const_iterator cend( ) const {
+			const_iterator cend( ) const noexcept {
 				return m_image_data.end( );
 			}
 
@@ -308,12 +156,10 @@ namespace daw {
 #endif
 		};
 
-		void swap( GenericImage<rgb3> &lhs, GenericImage<rgb3> &rhs ) noexcept;
-
 		template<>
 		struct GenericImage<rgb3> {
 			using value_type = rgb3;
-			using values_type = impl::fixed_array_t<value_type>;
+			using values_type = std::vector<value_type>;
 			using iterator = typename values_type::iterator;
 			using const_iterator = typename values_type::const_iterator;
 			using reference = typename values_type::reference;
@@ -326,44 +172,100 @@ namespace daw {
 			size_t m_size;
 			size_t m_id;
 			values_type m_image_data;
-			values_type &arry( );
-			values_type const &arry( ) const;
+
+			inline values_type &arry( ) noexcept {
+				return m_image_data;
+			}
+
+			inline values_type const &arry( ) const noexcept {
+				return m_image_data;
+			}
 
 		public:
-			GenericImage( size_t const width, size_t const height );
+			GenericImage( size_t const width, size_t const height )
+			  : m_width{width}
+			  , m_height{height}
+			  , m_size{width * height}
+			  , m_id{daw::randint<id_t>( )}
+			  , m_image_data( width * height ) {}
 
-			GenericImage( GenericImage const &other );
-			GenericImage( GenericImage && ) = default;
-			GenericImage &operator=( GenericImage && ) = default;
+			GenericImage( GenericImage const & ) = default;
+			GenericImage( GenericImage && ) noexcept = default;
+			GenericImage &operator=( GenericImage && ) noexcept = default;
+			GenericImage &operator=( GenericImage const & ) = default;
 
-			friend void swap( GenericImage<rgb3> &lhs, GenericImage<rgb3> &rhs ) noexcept;
-
-			GenericImage &operator=( GenericImage const &rhs );
-			virtual ~GenericImage( );
-
-			GenericImage view( size_t origin_x, size_t origin_y, size_t width, size_t height );
+			~GenericImage( ) = default;
 
 			static void to_file( daw::string_view image_filename, GenericImage<rgb3> const &image_input );
-			void to_file( daw::string_view image_filename ) const;
+
+			inline void to_file( daw::string_view image_filename ) const {
+				to_file( image_filename, *this );
+			}
+
 			static GenericImage<rgb3> from_file( daw::string_view image_filename );
-			size_t width( ) const;
-			size_t height( ) const;
-			size_t size( ) const;
-			size_t id( ) const;
-			const_reference operator( )( size_t const y, size_t const x ) const;
-			reference operator( )( size_t const y, size_t const x );
-			const_reference operator[]( size_t const pos ) const;
-			reference operator[]( size_t const pos );
-			iterator begin( );
-			const_iterator begin( ) const;
-			const_iterator cbegin( ) const;
-			iterator end( );
-			const_iterator end( ) const;
-			const_iterator cend( ) const;
+
+			inline size_t width( ) const noexcept {
+				return m_width;
+			}
+
+			inline size_t height( ) const noexcept {
+				return m_height;
+			}
+
+			inline size_t size( ) const noexcept {
+				return m_size;
+			}
+
+			inline size_t id( ) const noexcept {
+				return m_id;
+			}
+
+			const_reference operator( )( size_t const y, size_t const x ) const {
+				return arry( )[y * m_width + x];
+			}
+
+			reference operator( )( size_t const y, size_t const x ) {
+				return arry( )[y * m_width + x];
+			}
+
+			const_reference operator[]( size_t const pos ) const {
+				return arry( )[pos];
+			}
+
+			reference operator[]( size_t const pos ) {
+				return arry( )[pos];
+			}
+
+			iterator begin( ) noexcept {
+				return m_image_data.begin( );
+			}
+
+			const_iterator begin( ) const noexcept {
+				return m_image_data.begin( );
+			}
+
+			const_iterator cbegin( ) const noexcept {
+				return m_image_data.begin( );
+			}
+
+			iterator end( ) noexcept {
+				return m_image_data.end( );
+			}
+
+			const_iterator end( ) const noexcept {
+				return m_image_data.end( );
+			}
+
+			const_iterator cend( ) const noexcept {
+				return m_image_data.end( );
+			}
 #ifdef DAWFILTER_USEPYTHON
 			static void register_python( std::string const &nameoftype );
 #endif
 		};
-		GenericImage<rgb3> from_file( daw::string_view image_filename );
+
+		inline GenericImage<rgb3> from_file( daw::string_view image_filename ) {
+			return GenericImage<rgb3>::from_file( image_filename );
+		}
 	} // namespace imaging
 } // namespace daw

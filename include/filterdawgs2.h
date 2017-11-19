@@ -40,7 +40,11 @@ namespace daw {
 				return "Convert an RGB image to an optimized grayscale image";
 			}
 
-			static double too_gs( rgb3 const &pixel );
+			static constexpr double too_gs( rgb3 const &pixel ) noexcept {
+				// Returns a ~24bit grayscale value from 0 to ~16 million
+				return static_cast<double>( 19595 * pixel.red + 38469 * pixel.green + 7471 * pixel.blue ) /
+				       65535.0; // 0.299r + 0.587g + 0.114b
+			}
 
 #ifdef DAWFILTER_USEPYTHON
 			static void register_python( std::string const nameoftype = "filter_dawgs" );

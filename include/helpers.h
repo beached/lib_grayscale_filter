@@ -26,7 +26,7 @@ namespace daw {
 	namespace imaging {
 		namespace helpers {
 			template<class T>
-			T max3( T value1, T value2, T value3 ) {
+			constexpr T max3( T value1, T value2, T value3 ) noexcept {
 				T maxval = value1;
 				if( value2 > maxval ) {
 					maxval = value2;
@@ -38,7 +38,7 @@ namespace daw {
 			}
 
 			template<class T>
-			T min3( T value1, T value2, T value3 ) {
+			constexpr T min3( T value1, T value2, T value3 ) noexcept {
 				T maxval = value1;
 				if( value2 < maxval ) {
 					maxval = value2;
@@ -50,7 +50,7 @@ namespace daw {
 			}
 
 			template<class T>
-			void clampvalue( T &value, T min, T max ) {
+			constexpr void clampvalue( T &value, T min, T max ) noexcept {
 				if( value < min ) {
 					value = min;
 				} else if( value > max ) {
@@ -59,7 +59,7 @@ namespace daw {
 			}
 
 			template<class T>
-			float too_gs_small( T red, T green, T blue ) {
+			constexpr float too_gs_small( T red, T green, T blue ) noexcept {
 				return 0.299f * static_cast<float>( red ) + 0.587f * static_cast<float>( green ) +
 				       0.114f * static_cast<float>( blue );
 			}

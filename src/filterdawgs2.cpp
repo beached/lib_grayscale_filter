@@ -151,7 +151,7 @@ namespace daw {
 				                   std::get<0>( init ) += current.red;
 				                   std::get<1>( init ) += current.green;
 				                   std::get<2>( init ) += current.blue;
-				                   return init;
+				                   return std::move( init );
 			                   } );
 
 			std::get<0>( sum ) /= image_input.size( );
@@ -177,12 +177,6 @@ namespace daw {
 				return result;
 			} );
 			return image_output;
-		}
-
-		double FilterDAWGS2::too_gs( rgb3 const &pixel ) {
-			// Returns a ~24bit grayscale value from 0 to ~16 million
-			return static_cast<double>( 19595 * pixel.red + 38469 * pixel.green + 7471 * pixel.blue ) /
-			       65535.0; // 0.299r + 0.587g + 0.114b
 		}
 
 #ifdef DAWFILTER_USEPYTHON
