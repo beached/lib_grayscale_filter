@@ -236,6 +236,10 @@ namespace daw {
 			return m_image_data.begin( );
 		}
 
+		GenericImage<rgb3>::const_iterator GenericImage<rgb3>::cbegin( ) const {
+			return m_image_data.begin( );
+		}
+
 		GenericImage<rgb3>::iterator GenericImage<rgb3>::end( ) {
 			return m_image_data.end( );
 		}
@@ -244,10 +248,14 @@ namespace daw {
 			return m_image_data.end( );
 		}
 
+		GenericImage<rgb3>::const_iterator GenericImage<rgb3>::cend( ) const {
+			return m_image_data.end( );
+		}
+
 #ifdef DAWFILTER_USEPYTHON
 		void GenericImage<rgb3>::register_python( std::string const &nameoftype ) {
 			boost::python::class_<GenericImage<rgb3>>( nameoftype.c_str( ),
-			                                           boost::python::init<const size_t, const size_t>( ) )
+			                                           boost::python::init<size_t const, size_t const>( ) )
 			  .def( "from_file", &GenericImage<rgb3>::from_file )
 			  .static method( "from_file" )
 			  .def( "to_file", &GenericImage<rgb3>::to_file )

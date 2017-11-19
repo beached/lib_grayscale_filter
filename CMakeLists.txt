@@ -5,11 +5,15 @@ project( lib_grayscale_filter_prj )
 include( ExternalProject )
 set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR} )
 
-set( Boost_USE_STATIC_LIBS OFF ) 
-set( Boost_USE_MULTITHREADED ON )  
-set( Boost_USE_STATIC_RUNTIME OFF ) 
+set( Boost_USE_STATIC_LIBS OFF )
+set( Boost_USE_MULTITHREADED ON )
+set( Boost_USE_STATIC_RUNTIME OFF )
 
-find_package( Boost 1.58.0 REQUIRED COMPONENTS system filesystem regex unit_test_framework program_options iostreams python )
+if(DAWFILTER_USEPYTHON)
+	find_package( Boost 1.58.0 REQUIRED COMPONENTS system filesystem regex unit_test_framework program_options iostreams python )
+else( )
+	find_package( Boost 1.58.0 REQUIRED COMPONENTS system filesystem regex unit_test_framework program_options iostreams )
+endif( )
 
 find_package( FreeImage REQUIRED )
 enable_testing( )
@@ -28,7 +32,7 @@ else( )
 	endif( )
 endif( )
 
-externalproject_add( 
+externalproject_add(
 	header_libraries_prj
 	GIT_REPOSITORY "https://github.com/beached/header_libraries.git"
 	GIT_TAG "master"
@@ -82,6 +86,12 @@ target_link_libraries( image_in_out_test_bin grayscale_filter ${Boost_LIBRARIES}
 add_dependencies( image_in_out_test_bin grayscale_filter header_libraries_prj )
 add_test( image_in_out_test image_in_out_test_bin "${PROJECT_SOURCE_DIR}/img_in_001.jpg" "${CMAKE_BINARY_DIR}/img_out_001.jpg" )
 add_dependencies( check image_in_out_test_bin )
+
+add_executable( filter_speed_test_bin EXCLUDE_FROM_ALL ${FUNCTION_STREAM_HEADER_FILES} ${TASK_SCHEDULER_HEADER_FILES} ${TEST_FOLDER}/filter_speed_test.cpp )
+target_link_libraries( filter_speed_test_bin grayscale_filter ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} )
+add_dependencies( filter_speed_test_bin grayscale_filter header_libraries_prj )
+add_test( filter_speed_test filter_speed_test_bin "${PROJECT_SOURCE_DIR}/img_in_001.jpg" "${CMAKE_BINARY_DIR}/img_out_001.jpg" )
+add_dependencies( check filter_speed_test_bin )
 
 install( TARGETS grayscale_filter DESTINATION lib )
 install( DIRECTORY ${HEADER_FOLDER}/ DESTINATION include/daw/grayscale_filter )

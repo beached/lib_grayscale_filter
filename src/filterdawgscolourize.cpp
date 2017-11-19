@@ -20,8 +20,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
-#include <boost/math/special_functions/round.hpp>
 #include <cmath>
 #include <limits>
 #include <map>
@@ -29,6 +27,7 @@
 #include <daw/daw_algorithm.h>
 #include <daw/daw_container_algorithm.h>
 #include <daw/daw_exception.h>
+#include <daw/daw_math.h>
 
 #include "filterdawgscolourize.h"
 #include "genericimage.h"
@@ -54,92 +53,91 @@ namespace daw {
 				return t1;
 			}
 
-			GenericImage<GenericRGB<int32_t>> repaint_ratio( GenericImage<rgb3> const &input_image,
+			GenericImage<GenericRGB<uint32_t>> repaint_ratio( GenericImage<rgb3> const &input_image,
 			                                                 GenericImage<rgb3> const &input_gsimage ) {
 				daw::exception::daw_throw_on_false( input_image.size( ) == input_gsimage.size( ) );
-				GenericImage<GenericRGB<int32_t>> output_image( input_image.width( ), input_image.height( ) );
-				daw::algorithm::transform_many(
-				  input_image.begin( ), input_image.end( ), input_gsimage.begin( ), output_image.begin( ),
-				  []( rgb3 orig, rgb3 const grayscale3 ) {
-					  uint8_t grayscale = grayscale3.blue;
-					  // Luma = Rx + Gy +Bz
-					  // We want Luma -> Luma2
-					  // ( Rx + Gy + Bz )/Luma = 1
-					  // Luma2*( Rx + Gy + Bz )/Luma = Luma2
-					  GenericRGB<float> forig( static_cast<float>( orig.red ), static_cast<float>( orig.green ),
-					                           static_cast<float>( orig.blue ) );
+				GenericImage<GenericRGB<uint32_t>> output_image( input_image.width( ), input_image.height( ) );
+				daw::algorithm::transform_many( input_image.begin( ), input_image.end( ), input_gsimage.begin( ),
+				                                output_image.begin( ), []( rgb3 orig, rgb3 const grayscale3 ) {
+					                                uint8_t grayscale = grayscale3.blue;
+					                                // Luma = Rx + Gy +Bz
+					                                // We want Luma -> Luma2
+					                                // ( Rx + Gy + Bz )/Luma = 1
+					                                // Luma2*( Rx + Gy + Bz )/Luma = Luma2
+					                                GenericRGB<float> forig( static_cast<float>( orig.red ),
+					                                                         static_cast<float>( orig.green ),
+					                                                         static_cast<float>( orig.blue ) );
 
-					  auto const curL = forig.too_float_gs( );
+					                                auto const curL = forig.too_float_gs( );
 
-					  if( fabs( static_cast<double>( curL ) ) < 0.114 ) {
-						  // prevent div by 0 as 0.114 is the minimum value;
-						  return GenericRGB<int32_t>( 0, 0, 0 );
-					  }
-					  auto const rat = static_cast<float>( grayscale ) / curL;
-					  forig.red = boost::math::round( forig.red * rat );
-					  forig.green = boost::math::round( forig.green * rat );
-					  forig.blue = boost::math::round( forig.blue * rat );
-					  return GenericRGB<int32_t>( static_cast<int32_t>( forig.red ), static_cast<int32_t>( forig.green ),
-					                              static_cast<int32_t>( forig.blue ) );
-				  } );
+					                                if( fabs( static_cast<double>( curL ) ) < 0.114 ) {
+						                                // prevent div by 0 as 0.114 is the minimum value;
+						                                return GenericRGB<uint32_t>( 0, 0, 0 );
+					                                }
+					                                auto const rat = static_cast<float>( grayscale ) / curL;
+					                                auto red_tmp = daw::math::round<uint32_t>( forig.red * rat );
+					                                auto green_tmp = daw::math::round<uint32_t>( forig.green * rat );
+					                                auto blue_tmp = daw::math::round<uint32_t>( forig.blue * rat );
+					                                return GenericRGB<uint32_t>( red_tmp, green_tmp, blue_tmp );
+				                                } );
 				return output_image;
 			}
 
-			GenericImage<GenericRGB<int32_t>> repaint_yuv( GenericImage<rgb3> const &input_image,
+			GenericImage<GenericRGB<uint32_t>> repaint_yuv( GenericImage<rgb3> const &input_image,
 			                                               GenericImage<rgb3> const &input_gsimage ) {
 				daw::exception::daw_throw_on_false( input_image.size( ) == input_gsimage.size( ) );
-				GenericImage<GenericRGB<int32_t>> output_image( input_image.width( ), input_image.height( ) );
+				GenericImage<GenericRGB<uint32_t>> output_image( input_image.width( ), input_image.height( ) );
 				daw::algorithm::transform_many( input_image.begin( ), input_image.end( ), input_gsimage.begin( ),
 				                                output_image.begin( ), []( rgb3 orig, rgb3 const grayscale3 ) {
 					                                uint8_t grayscale = grayscale3.blue;
 					                                // YUV
 					                                // Convert back to YUV with Y being the current grayscale value and then
 					                                // back to RGB
-					                                // int32_t const retval = 19595*pixel.red + 38469*pixel.green +
+					                                // uint32_t const retval = 19595*pixel.red + 38469*pixel.green +
 					                                // 7471*pixel.blue;
 					                                auto const Y = static_cast<float>( grayscale );
 					                                auto const U = orig.colform( -0.147f, -0.289f, 0.436f );
 					                                auto const V = orig.colform( 0.615f, -0.515f, -0.1f );
 
-					                                auto const R = static_cast<int32_t>( Y + 1.14f * V );
-					                                auto const G = static_cast<int32_t>( Y - 0.395f * U - 0.581f * V );
-					                                auto const B = static_cast<int32_t>( Y + 2.032f * U );
-					                                // int B = (int32_t)( Y + 1.5f*U );
-					                                return GenericRGB<int32_t>( R, G, B );
+					                                auto const R = static_cast<uint32_t>( Y + 1.14f * V );
+					                                auto const G = static_cast<uint32_t>( Y - 0.395f * U - 0.581f * V );
+					                                auto const B = static_cast<uint32_t>( Y + 2.032f * U );
+					                                // int B = (uint32_t)( Y + 1.5f*U );
+					                                return GenericRGB<uint32_t>( R, G, B );
 				                                } );
 				return output_image;
 			}
 
-			GenericImage<GenericRGB<int32_t>> repaint_multiply_1( GenericImage<rgb3> const &input_image,
+			GenericImage<GenericRGB<uint32_t>> repaint_multiply_1( GenericImage<rgb3> const &input_image,
 			                                                      GenericImage<rgb3> const &input_gsimage ) {
 				daw::exception::daw_throw_on_false( input_image.size( ) == input_gsimage.size( ) );
-				GenericImage<GenericRGB<int32_t>> output_image( input_image.width( ), input_image.height( ) );
+				GenericImage<GenericRGB<uint32_t>> output_image( input_image.width( ), input_image.height( ) );
 				daw::algorithm::transform_many( input_image.begin( ), input_image.end( ), input_gsimage.begin( ),
 				                                output_image.begin( ), []( rgb3 orig, rgb3 const grayscale3 ) {
 					                                uint8_t grayscale = grayscale3.blue;
-					                                return GenericRGB<int32_t>( orig.red * grayscale, orig.green * grayscale,
+					                                return GenericRGB<uint32_t>( orig.red * grayscale, orig.green * grayscale,
 					                                                            orig.blue * grayscale );
 				                                } );
 				return output_image;
 			}
 
-			GenericImage<GenericRGB<int32_t>> repaint_addition( GenericImage<rgb3> const &input_image,
+			GenericImage<GenericRGB<uint32_t>> repaint_addition( GenericImage<rgb3> const &input_image,
 			                                                    GenericImage<rgb3> const &input_gsimage ) {
 				daw::exception::daw_throw_on_false( input_image.size( ) == input_gsimage.size( ) );
-				GenericImage<GenericRGB<int32_t>> output_image( input_image.width( ), input_image.height( ) );
+				GenericImage<GenericRGB<uint32_t>> output_image( input_image.width( ), input_image.height( ) );
 				daw::algorithm::transform_many( input_image.begin( ), input_image.end( ), input_gsimage.begin( ),
 				                                output_image.begin( ), []( rgb3 orig, rgb3 const grayscale3 ) {
 					                                uint8_t grayscale = grayscale3.blue;
-					                                return GenericRGB<int32_t>( orig.red + grayscale, orig.green + grayscale,
+					                                return GenericRGB<uint32_t>( orig.red + grayscale, orig.green + grayscale,
 					                                                            orig.blue + grayscale );
 				                                } );
 				return output_image;
 			}
 
-			GenericImage<GenericRGB<int32_t>> repaint_multiply_2( GenericImage<rgb3> const &input_image,
+			GenericImage<GenericRGB<uint32_t>> repaint_multiply_2( GenericImage<rgb3> const &input_image,
 			                                                      GenericImage<rgb3> const &input_gsimage ) {
 				daw::exception::daw_throw_on_false( input_image.size( ) == input_gsimage.size( ) );
-				GenericImage<GenericRGB<int32_t>> output_image( input_image.width( ), input_image.height( ) );
+				GenericImage<GenericRGB<uint32_t>> output_image( input_image.width( ), input_image.height( ) );
 				daw::algorithm::transform_many(
 				  input_image.begin( ), input_image.end( ), input_gsimage.begin( ), output_image.begin( ),
 				  []( rgb3 orig, rgb3 const grayscale3 ) {
@@ -147,21 +145,21 @@ namespace daw {
 					  // Mul 2, Mul with individual scaling based on max( R, G, B )
 					  auto const maxval = static_cast<float>( orig.max( ) );
 					  if( 0 <= maxval ) {
-						  return GenericRGB<int32_t>( 0, 0, 0 );
+						  return GenericRGB<uint32_t>( 0, 0, 0 );
 					  }
 					  auto const luma = static_cast<float>( grayscale );
-					  auto red = static_cast<int32_t>( ( static_cast<float>( orig.red ) * luma ) / maxval );
-					  auto green = static_cast<int32_t>( ( static_cast<float>( orig.green ) * luma ) / maxval );
-					  auto blue = static_cast<int32_t>( ( static_cast<float>( orig.blue ) * luma ) / maxval );
-					  return GenericRGB<int32_t>( std::move( red ), std::move( green ), std::move( blue ) );
+					  auto red = static_cast<uint32_t>( ( static_cast<float>( orig.red ) * luma ) / maxval );
+					  auto green = static_cast<uint32_t>( ( static_cast<float>( orig.green ) * luma ) / maxval );
+					  auto blue = static_cast<uint32_t>( ( static_cast<float>( orig.blue ) * luma ) / maxval );
+					  return GenericRGB<uint32_t>( std::move( red ), std::move( green ), std::move( blue ) );
 				  } );
 				return output_image;
 			}
 
-			GenericImage<GenericRGB<int32_t>> repaint_hsl( GenericImage<rgb3> const &input_image,
+			GenericImage<GenericRGB<uint32_t>> repaint_hsl( GenericImage<rgb3> const &input_image,
 			                                               GenericImage<rgb3> const &input_gsimage ) {
 				daw::exception::daw_throw_on_false( input_image.size( ) == input_gsimage.size( ) );
-				GenericImage<GenericRGB<int32_t>> output_image( input_image.width( ), input_image.height( ) );
+				GenericImage<GenericRGB<uint32_t>> output_image( input_image.width( ), input_image.height( ) );
 				daw::algorithm::transform_many( input_image.begin( ), input_image.end( ), input_gsimage.begin( ),
 				                                output_image.begin( ), []( rgb3 orig, rgb3 const grayscale3 ) {
 					                                uint8_t grayscale = grayscale3.blue;
@@ -173,9 +171,9 @@ namespace daw {
 					                                auto const orig_min = orig.min( );
 
 					                                if( 0 == grayscale ) {
-						                                return GenericRGB<int32_t>( 0, 0, 0 );
+						                                return GenericRGB<uint32_t>( 0, 0, 0 );
 					                                } else if( orig_max == orig_min ) {
-						                                return GenericRGB<int32_t>( static_cast<int32_t>( grayscale ) );
+						                                return GenericRGB<uint32_t>( static_cast<uint32_t>( grayscale ) );
 					                                } else {
 						                                {
 							                                auto const orig_maxf = static_cast<float>( orig_max ) / 255.0f;
@@ -225,16 +223,16 @@ namespace daw {
 
 						                                rgb.mul( 255.0f );
 
-						                                return GenericRGB<int32_t>( static_cast<int32_t>( rgb.red ),
-						                                                            static_cast<int32_t>( rgb.green ),
-						                                                            static_cast<int32_t>( rgb.blue ) );
+						                                return GenericRGB<uint32_t>( static_cast<uint32_t>( rgb.red ),
+						                                                            static_cast<uint32_t>( rgb.green ),
+						                                                            static_cast<uint32_t>( rgb.blue ) );
 					                                }
 				                                } );
 				return output_image;
 			}
-			using rp_func_t = GenericImage<GenericRGB<int32_t>> ( * )( GenericImage<rgb3> const &,
+			using rp_func_t = GenericImage<GenericRGB<uint32_t>> ( * )( GenericImage<rgb3> const &,
 			                                                           GenericImage<rgb3> const & );
-			GenericImage<GenericRGB<int32_t>> repaint_image( FilterDAWGSColourize::repaint_formulas repaint_formula,
+			GenericImage<GenericRGB<uint32_t>> repaint_image( FilterDAWGSColourize::repaint_formulas repaint_formula,
 			                                                 GenericImage<rgb3> const &input_image,
 			                                                 GenericImage<rgb3> const &inputgs_image ) {
 				static std::unordered_map<FilterDAWGSColourize::repaint_formulas, rp_func_t> repaint_fn = {
@@ -284,8 +282,8 @@ namespace daw {
 
 			auto tmpimgdata = repaint_image( repaint_formula, input_image, input_gsimage );
 
-			GenericRGB<int32_t> pd_min;
-			GenericRGB<int32_t> pd_max;
+			GenericRGB<uint32_t> pd_min{};
+			GenericRGB<uint32_t> pd_max{};
 			std::tie( pd_min, pd_max ) = minmax_element( tmpimgdata );
 
 			auto const mul_fact = 255.0f / static_cast<float>( pd_max.max( ) - pd_min.min( ) );

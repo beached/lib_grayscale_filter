@@ -21,7 +21,6 @@
 // SOFTWARE.
 
 #include <algorithm>
-#include <boost/scoped_array.hpp>
 #include <cmath>
 #include <iterator>
 #include <map>

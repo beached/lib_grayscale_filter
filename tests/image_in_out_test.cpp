@@ -28,13 +28,14 @@
 #include <daw/daw_exception.h>
 
 #include "filterdawgs2.h"
+#include "filterdawgs.h"
 #include "genericimage.h"
 
 int main( int argc, char **argv ) {
 	daw::exception::daw_throw_on_false( argc >= 3, "Must supply a source and destination file" );
 	using namespace daw::imaging;
 
-	auto const elapsed = daw::benchmark( [argv]( ) { FilterDAWGS2::filter( from_file( argv[1] ) ).to_file( argv[2] ); } );
+	auto const elapsed = daw::benchmark( [argv]( ) { FilterDAWGS::filter( from_file( argv[1] ) ).to_file( argv[2] ); } );
 
 	std::cout << "elapsed time: " << daw::utility::format_seconds( elapsed, 2 ) << '\n';
 

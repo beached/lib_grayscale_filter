@@ -135,11 +135,19 @@ namespace daw {
 					return m_values;
 				}
 
+				const_iterator cbegin( ) const noexcept {
+					return m_values;
+				}
+
 				iterator end( ) noexcept {
 					return m_values + m_size;
 				}
 
 				const_iterator end( ) const noexcept {
+					return m_values + m_size;
+				}
+
+				const_iterator cend( ) const noexcept {
 					return m_values + m_size;
 				}
 
@@ -269,11 +277,19 @@ namespace daw {
 				return m_image_data.begin( );
 			}
 
+			const_iterator cbegin( ) const {
+				return m_image_data.begin( );
+			}
+
 			iterator end( ) {
 				return m_image_data.end( );
 			}
 
 			const_iterator end( ) const {
+				return m_image_data.end( );
+			}
+
+			const_iterator cend( ) const {
 				return m_image_data.end( );
 			}
 
@@ -340,8 +356,10 @@ namespace daw {
 			reference operator[]( size_t const pos );
 			iterator begin( );
 			const_iterator begin( ) const;
+			const_iterator cbegin( ) const;
 			iterator end( );
 			const_iterator end( ) const;
+			const_iterator cend( ) const;
 #ifdef DAWFILTER_USEPYTHON
 			static void register_python( std::string const &nameoftype );
 #endif

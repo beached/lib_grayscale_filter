@@ -134,12 +134,8 @@ namespace daw {
 			}
 
 			template<typename V>
-			auto as_tuple( ) {
-				return std::forward_as_tuple( static_cast<V>( red ), static_cast<V>( green ), static_cast<V>( blue ) );
-			}
-
-			auto as_tuple( ) {
-				return std::forward_as_tuple( red, green, blue );
+			GenericRGB<V> as( ) {
+				return GenericRGB<V>( static_cast<V>( red ), static_cast<V>( green ), static_cast<V>( blue ) );
 			}
 
 #ifdef DAWFILTER_USEPYTHON
