@@ -25,6 +25,7 @@
 #include <map>
 #include <unordered_map>
 #include <unordered_set>
+#include <set>
 #include <vector>
 
 #include <daw/daw_algorithm.h>
@@ -39,14 +40,14 @@ namespace daw {
 	namespace imaging {
 		GenericImage<rgb3> FilterDAWGS::filter( GenericImage<rgb3> const &image_input ) {
 
-			std::unordered_set<uint32_t> unique_values{};
+			std::set<uint32_t> unique_values{};
 
 			// Create a unique_values item for each distinct grayscale item in image
 			// and then set count to zero
 			// no parallel to unique_values
-			for( auto const &rgb : image_input ) {
-				unique_values.insert( daw::imaging::FilterDAWGS::too_gs( rgb ) );
-			}
+			std::transform( image_input.begin( ), image_input.end( ), std::inserter( unique_values, unique_values.end( ) ), []( auto rgb ) {
+				return daw::imaging::FilterDAWGS::too_gs( rgb );
+			});
 
 			// If we must compress as there isn't room for number of grayscale items
 			if( unique_values.size( ) <= 256 ) {
@@ -65,7 +66,7 @@ namespace daw {
 				std::vector<uint32_t> result{};
 				result.reserve( unique_values.size( ) );
 				std::copy( unique_values.cbegin( ), unique_values.cend( ), std::back_inserter( result ) );
-				std::sort( result.begin( ), result.end( ) );
+				//std::sort( result.begin( ), result.end( ) );
 				return result;
 			}( );
 
