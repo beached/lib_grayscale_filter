@@ -87,10 +87,19 @@ namespace daw {
 
 			daw::algorithm::parallel::transform(
 			  input_image.cbegin( ), input_image.cend( ), output_image.begin( ),
-			  [&bins]( auto rgb ) {
+			  [&bins]( auto rgb ) -> uint8_t {
+			  	/*
 				  return daw::distance(
 				    bins.cbegin( ), std::upper_bound( bins.cbegin( ), bins.cend( ),
 				                                      FilterDAWGS::too_gs( rgb ) ) );
+				                                      */
+			  	auto const val = FilterDAWGS::too_gs( rgb );
+			  	for( uint8_t n=0; n<static_cast<uint8_t>( bins.size( ) ); ++n ) {
+			  		if( bins[n] >= val ) {
+			  			return n;
+			  		}
+			  	}
+			  	return 255;
 			  } );
 
 			return output_image;
