@@ -77,9 +77,10 @@ namespace daw {
 			std::array<uint32_t, 256> bins = [&keys]( ) {
 				std::array<uint32_t, 256> a{};
 				auto const inc = static_cast<float>( keys.size( ) ) / 256.0f;
-				for( size_t n=0; n<256; ++n ) {
+				for( size_t n=0; n<255; ++n ) {
 					a[n] = keys[static_cast<size_t>(static_cast<float>(n)*inc)];
 				}
+				a[255] = keys.back( );	// Just in case
 				return a;
 			}( );
 			GenericImage<rgb3> output_image{input_image.width( ),
@@ -88,18 +89,11 @@ namespace daw {
 			daw::algorithm::parallel::transform(
 			  input_image.cbegin( ), input_image.cend( ), output_image.begin( ),
 			  [&bins]( auto rgb ) -> uint8_t {
-			  	/*
-				  return daw::distance(
-				    bins.cbegin( ), std::upper_bound( bins.cbegin( ), bins.cend( ),
-				                                      FilterDAWGS::too_gs( rgb ) ) );
-				                                      */
 			  	auto const val = FilterDAWGS::too_gs( rgb );
-			  	for( uint8_t n=0; n<static_cast<uint8_t>( bins.size( ) ); ++n ) {
-			  		if( bins[n] >= val ) {
-			  			return n;
-			  		}
-			  	}
-			  	return 255;
+			  	auto const pos = std::find_if( bins.begin( ), bins.end( ), [val]( auto b ) {
+			  		return b >= val;
+			  	} );
+			  	return std::distance( bins.begin( ), pos );
 			  } );
 
 			return output_image;
