@@ -80,7 +80,7 @@ namespace daw {
 				for( size_t n=0; n<255; ++n ) {
 					a[n] = keys[static_cast<size_t>(static_cast<float>(n)*inc)];
 				}
-				a[255] = keys.back( );	// Just in case
+				a[255] = keys.back( );
 				return a;
 			}( );
 			GenericImage<rgb3> output_image{input_image.width( ),
@@ -90,10 +90,12 @@ namespace daw {
 			  input_image.cbegin( ), input_image.cend( ), output_image.begin( ),
 			  [&bins]( auto rgb ) -> uint8_t {
 			  	auto const val = FilterDAWGS::too_gs( rgb );
-			  	auto const pos = std::find_if( bins.begin( ), bins.end( ), [val]( auto b ) {
-			  		return b >= val;
-			  	} );
-			  	return std::distance( bins.begin( ), pos );
+			  	for( uint8_t n=0; n<static_cast<uint8_t>( bins.size( ) ); ++n ) {
+			  		if( bins[n] >= val ) {
+			  			return n;
+			  		}
+			  	}
+			  	std::abort( );
 			  } );
 
 			return output_image;
