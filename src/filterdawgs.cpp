@@ -38,51 +38,62 @@
 
 namespace daw {
 	namespace imaging {
-			GenericImage<rgb3> FilterDAWGS::filter( GenericImage<rgb3> const &input_image ) {
+		namespace impl {
+			GenericImage<rgb3> to_small_gs( GenericImage<rgb3> const &input_image ) {
+				GenericImage<rgb3> image_output{input_image.width( ),
+				                                input_image.height( )};
 
-			std::vector<uint32_t> keys{};
-			keys.resize( input_image.size( ) );
-			// Create a unique_values item for each distinct grayscale item in image
-			// and then set count to zero
-			// no parallel to unique_values
-			daw::algorithm::parallel::transform( input_image.begin( ), input_image.end( ), keys.begin( ), []( auto rgb ) {
-				return daw::imaging::FilterDAWGS::too_gs( rgb );
-			});
-
-			daw::algorithm::parallel::sort( keys.begin(), keys.end( ) );
-			keys.erase( std::unique( keys.begin( ), keys.end( ) ), keys.end( ) );
-
-			// If we must compress as there isn't room for number of grayscale items
-			if( keys.size( ) <= 256 ) {
-				std::cerr << "Already a grayscale image or has enough room for all "
-				             "possible values and no compression needed:"
-				          << keys.size( ) << std::endl;
-				GenericImage<rgb3> image_output{input_image.width( ), input_image.height( )};
-
-				std::transform( input_image.cbegin( ), input_image.cend( ), image_output.begin( ),
-				                []( rgb3 const &rgb ) { return static_cast<uint8_t>( rgb.too_float_gs( ) ); } );
+				std::transform( input_image.cbegin( ), input_image.cend( ),
+				                image_output.begin( ), []( rgb3 const &rgb ) {
+					                return static_cast<uint8_t>( rgb.too_float_gs( ) );
+				                } );
 
 				return image_output;
 			}
+		}
+		GenericImage<rgb3>
+		FilterDAWGS::filter( GenericImage<rgb3> const &input_image ) {
 
-			auto const inc = static_cast<float>( keys.size( ) ) / 256.0f;
+			std::vector<uint32_t> const keys = [&]( ) {
+				std::vector<uint32_t> v{};
+				v.resize( input_image.size( ) );
+				// Create a unique_values item for each distinct grayscale item in image
+				// and then set count to zero
+				// no parallel to unique_values
+				daw::algorithm::parallel::transform(
+				  input_image.begin( ), input_image.end( ), v.begin( ),
+				  []( auto rgb ) { return daw::imaging::FilterDAWGS::too_gs( rgb ); } );
 
-			/*
-			std::unordered_map<uint32_t, uint8_t> value_pos{};
-			value_pos.reserve( keys.size( ) );
-
-			for( size_t n = 0; n < keys.size( ); ++n ) {
-				value_pos.emplace( keys[n], static_cast<uint8_t>( static_cast<float>( n ) / inc ) );
+				daw::algorithm::parallel::sort( v.begin( ), v.end( ) );
+				v.erase( std::unique( v.begin( ), v.end( ) ), v.end( ) );
+				return v;
+			}( );
+			// If we must compress as there isn't room for number of grayscale items
+			if( keys.size( ) <= 256 ) {
+				std::cerr << "Already a grayscale image or has enough room for all "
+										 "possible values and no compression needed:"
+									<< keys.size( ) << std::endl;
+				return impl::to_small_gs( input_image );
 			}
-			*/
 
-			GenericImage<rgb3> output_image{input_image.width( ), input_image.height( )};
+			std::array<uint32_t, 256> bins = [&keys]( ) {
+				std::array<uint32_t, 256> a{};
+				auto const inc = static_cast<float>( keys.size( ) ) / 256.0f;
+				for( size_t n=0; n<256; ++n ) {
+					a[n] = keys[static_cast<size_t>(static_cast<float>(n)*inc)];
+				}
+				return a;
+			}( );
+			GenericImage<rgb3> output_image{input_image.width( ),
+			                                input_image.height( )};
 
-			daw::algorithm::parallel::transform( input_image.cbegin( ), input_image.cend( ), output_image.begin( ),
-			                [&keys, inc]( auto rgb ) {
-												auto const n = std::distance( keys.cbegin( ), std::lower_bound( keys.cbegin( ), keys.cend( ), FilterDAWGS::too_gs( rgb ) ) );
-												return static_cast<uint8_t>( static_cast<float>( n ) / inc );
-											} );
+			daw::algorithm::parallel::transform(
+			  input_image.cbegin( ), input_image.cend( ), output_image.begin( ),
+			  [&bins]( auto rgb ) {
+				  return std::distance(
+				    bins.cbegin( ), std::lower_bound( bins.cbegin( ), bins.cend( ),
+				                                      FilterDAWGS::too_gs( rgb ) ) );
+			  } );
 
 			return output_image;
 		}

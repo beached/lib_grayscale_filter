@@ -143,7 +143,9 @@ namespace daw {
 
 #ifdef DAWFILTER_USEPYTHON
 			static void register_python( std::string const &nameoftype ) {
-				boost::python::class_<GenericImage>( nameoftype.c_str( ), boost::python::init<size_t const, size_t const>( ) )
+				boost::python::class_<GenericImage>(
+				  nameoftype.c_str( ),
+				  boost::python::init<size_t const, size_t const>( ) )
 				  .def( "from_file", &GenericImage::from_file )
 				  .static method( "from_file" )
 				  .def( "to_file", &GenericImage::to_file )
@@ -196,7 +198,8 @@ namespace daw {
 
 			~GenericImage( ) = default;
 
-			static void to_file( daw::string_view image_filename, GenericImage<rgb3> const &image_input );
+			static void to_file( daw::string_view image_filename,
+			                     GenericImage<rgb3> const &image_input );
 
 			inline void to_file( daw::string_view image_filename ) const {
 				to_file( image_filename, *this );

@@ -49,13 +49,15 @@ namespace daw {
 			auto get_keys( Map const &m ) {
 				std::vector<typename Map::key_type> result{};
 				result.reserve( m.size( ) );
-				daw::container::transform( m, std::back_inserter( result ), []( auto const &val ) { return val.first; } );
+				daw::container::transform(
+				  m, std::back_inserter( result ),
+				  []( auto const &val ) { return val.first; } );
 				return result;
 			}
 
 			template<typename T>
-			constexpr T const
-			  const_under_half = T( 0.49999999999999999999999999999999999999999999999999999999999999999999999999999999 );
+			constexpr T const const_under_half = T(
+			  0.49999999999999999999999999999999999999999999999999999999999999999999999999999999 );
 
 			namespace impl {
 				namespace {
@@ -67,7 +69,9 @@ namespace daw {
 						for( size_t j = 0; j < 8; ++j ) {
 							result[j] = sqrt_tmp;
 							for( size_t i = 8; i < 64; i += 8 ) {
-								auto rad = static_cast<T>( i ) * ( static_cast<T>( j ) + static_cast<T>( 0.5 ) ) * pi_over_64;
+								auto rad = static_cast<T>( i ) *
+								           ( static_cast<T>( j ) + static_cast<T>( 0.5 ) ) *
+								           pi_over_64;
 								result[i + j] = static_cast<T>( 0.5 ) * daw::math::cos( rad );
 							}
 						}
@@ -83,7 +87,8 @@ namespace daw {
 			} // namespace impl
 
 			template<typename T>
-			GenericImage<double> dct( GenericImage<T> const &image, size_t const xpos, size_t const ypos ) {
+			GenericImage<double> dct( GenericImage<T> const &image, size_t const xpos,
+			                          size_t const ypos ) {
 				GenericImage<double> data( 8, 8 );
 				for( size_t v = 0; v < 8; v++ ) {
 					for( size_t u = 0; u < 8; u++ ) {
@@ -97,8 +102,11 @@ namespace daw {
 							for( size_t x = 0; x < 8; x++ ) {
 								auto s = static_cast<double>( image( x + xpos, y + ypos ) );
 
-								auto q = s * cos( static_cast<double>( ( 2 * x + 1 ) * u ) * daw::math::PI<double> / 16.0 ) *
-								         cos( static_cast<double>( ( 2 * y + 1 ) * v ) * daw::math::PI<double> / 16.0 );
+								auto q = s *
+								         cos( static_cast<double>( ( 2 * x + 1 ) * u ) *
+								              daw::math::PI<double> / 16.0 ) *
+								         cos( static_cast<double>( ( 2 * y + 1 ) * v ) *
+								              daw::math::PI<double> / 16.0 );
 								z += q;
 							}
 						}
@@ -109,7 +117,8 @@ namespace daw {
 			}
 
 			template<typename T>
-			void idct( GenericImage<T> &image, GenericImage<double> const &dct_data, size_t const xpos, size_t const ypos ) {
+			void idct( GenericImage<T> &image, GenericImage<double> const &dct_data,
+			           size_t const xpos, size_t const ypos ) {
 				// iDCT
 				for( size_t y = 0; y < 8; y++ ) {
 					for( size_t x = 0; x < 8; x++ ) {
@@ -123,8 +132,11 @@ namespace daw {
 								impl::coeffs( Cu, Cv, u, v );
 								auto S = dct_data( v, u );
 
-								auto q = Cu * Cv * S * cos( static_cast<double>( ( 2 * x + 1 ) * u ) * daw::math::PI<double> / 16.0 ) *
-								         cos( static_cast<double>( ( 2 * y + 1 ) * v ) * daw::math::PI<double> / 16.0 );
+								auto q = Cu * Cv * S *
+								         cos( static_cast<double>( ( 2 * x + 1 ) * u ) *
+								              daw::math::PI<double> / 16.0 ) *
+								         cos( static_cast<double>( ( 2 * y + 1 ) * v ) *
+								              daw::math::PI<double> / 16.0 );
 								z += q;
 							}
 						}
@@ -143,10 +155,12 @@ namespace daw {
 
 		} // namespace
 
-		GenericImage<rgb3> FilterDAWGS2::filter( GenericImage<rgb3> const &image_input ) {
+		GenericImage<rgb3>
+		FilterDAWGS2::filter( GenericImage<rgb3> const &image_input ) {
 
 			auto sum =
-			  std::accumulate( image_input.begin( ), image_input.end( ), std::tuple<uintmax_t, uintmax_t, uintmax_t>{0, 0, 0},
+			  std::accumulate( image_input.begin( ), image_input.end( ),
+			                   std::tuple<uintmax_t, uintmax_t, uintmax_t>{0, 0, 0},
 			                   []( auto init, auto const &current ) {
 				                   std::get<0>( init ) += current.red;
 				                   std::get<1>( init ) += current.green;
@@ -158,24 +172,29 @@ namespace daw {
 			std::get<1>( sum ) /= image_input.size( );
 			std::get<2>( sum ) /= image_input.size( );
 
-			GenericImage<rgb3> image_output( image_input.width( ), image_input.height( ) );
+			GenericImage<rgb3> image_output( image_input.width( ),
+			                                 image_input.height( ) );
 
-			auto mx = static_cast<double>( std::max( {std::get<0>( sum ), std::get<1>( sum ), std::get<2>( sum )} ) );
+			auto mx = static_cast<double>( std::max(
+			  {std::get<0>( sum ), std::get<1>( sum ), std::get<2>( sum )} ) );
 			auto weight_red = static_cast<double>( std::get<0>( sum ) ) / mx;
 			auto weight_green = static_cast<double>( std::get<1>( sum ) ) / mx;
 			auto weight_blue = static_cast<double>( std::get<2>( sum ) ) / mx;
 			auto dv = ( weight_red + weight_green + weight_blue ) / 3.0;
 
-			daw::exception::daw_throw_on_false( image_input.size( ) <= image_output.size( ) );
+			daw::exception::daw_throw_on_false( image_input.size( ) <=
+			                                    image_output.size( ) );
 			// TODO: make parallel
-			daw::container::transform( image_input, image_output.begin( ), [&]( rgb3 const &rgb ) {
-				auto result = static_cast<uint8_t>(
-				  ( ( static_cast<double>( rgb.red ) / weight_red + static_cast<double>( rgb.green ) / weight_green +
-				      static_cast<double>( rgb.blue ) / weight_blue ) /
-				    dv ) /
-				  3.0 );
-				return result;
-			} );
+			daw::container::transform(
+			  image_input, image_output.begin( ), [&]( rgb3 const &rgb ) {
+				  auto result = static_cast<uint8_t>(
+				    ( ( static_cast<double>( rgb.red ) / weight_red +
+				        static_cast<double>( rgb.green ) / weight_green +
+				        static_cast<double>( rgb.blue ) / weight_blue ) /
+				      dv ) /
+				    3.0 );
+				  return result;
+			  } );
 			return image_output;
 		}
 

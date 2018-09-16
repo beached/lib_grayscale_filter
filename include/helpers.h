@@ -60,7 +60,8 @@ namespace daw {
 
 			template<class T>
 			constexpr float too_gs_small( T red, T green, T blue ) noexcept {
-				return 0.299f * static_cast<float>( red ) + 0.587f * static_cast<float>( green ) +
+				return 0.299f * static_cast<float>( red ) +
+				       0.587f * static_cast<float>( green ) +
 				       0.114f * static_cast<float>( blue );
 			}
 		} // namespace helpers

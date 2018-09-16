@@ -32,15 +32,19 @@
 
 namespace daw {
 	namespace imaging {
-		GenericImage<rgb3> FilterRotate::filter( GenericImage<rgb3> const &image_input, uint32_t const angle ) {
+		GenericImage<rgb3>
+		FilterRotate::filter( GenericImage<rgb3> const &image_input,
+		                      uint32_t const angle ) {
 
 			if( angle > 3 ) {
-				throw std::runtime_error( "Cannot specify an angle other than 0 to 3 inclusive" );
+				throw std::runtime_error(
+				  "Cannot specify an angle other than 0 to 3 inclusive" );
 			}
-			switch( angle ) { // 0/default = no rotation, 1 = 90 degrees, 2 = 180 degrees,
-				                // 3 = 270 degrees
+			switch( angle ) { // 0/default = no rotation, 1 = 90 degrees, 2 = 180
+				                // degrees, 3 = 270 degrees
 			case 1: {
-				GenericImage<rgb3> image_rotated( image_input.height( ), image_input.width( ) );
+				GenericImage<rgb3> image_rotated( image_input.height( ),
+				                                  image_input.width( ) );
 				size_t const maxy = image_input.height( ) - 1;
 
 				//#pragma omp parallel for
@@ -52,19 +56,22 @@ namespace daw {
 				return image_rotated;
 			}
 			case 2: {
-				GenericImage<rgb3> image_rotated( image_input.width( ), image_input.height( ) );
+				GenericImage<rgb3> image_rotated( image_input.width( ),
+				                                  image_input.height( ) );
 				auto const maxx = image_input.width( ) - 1;
 				auto const maxy = image_input.height( ) - 1;
 				//#pragma omp parallel for
 				for( size_t y = 0; y < image_input.height( ); ++y ) {
 					for( size_t x = 0; x < image_input.width( ); ++x ) {
-						image_rotated( maxy - static_cast<size_t>( y ), maxx - x ) = image_input( y, x );
+						image_rotated( maxy - static_cast<size_t>( y ), maxx - x ) =
+						  image_input( y, x );
 					}
 				}
 				return image_rotated;
 			}
 			case 3: {
-				GenericImage<rgb3> image_rotated( image_input.height( ), image_input.width( ) );
+				GenericImage<rgb3> image_rotated( image_input.height( ),
+				                                  image_input.width( ) );
 				auto const maxx = image_input.width( ) - 1;
 				//#pragma omp parallel for
 				for( size_t y = 0; y < image_input.height( ); ++y ) {
@@ -75,19 +82,23 @@ namespace daw {
 				return image_rotated;
 			}
 			default: { // This is here to catch.  You should not use a rotate of 0
-				std::cerr << "Rotate Filter called without a rotation.  Returning copied "
-				             "original image"
-				          << std::endl;
+				std::cerr
+				  << "Rotate Filter called without a rotation.  Returning copied "
+				     "original image"
+				  << std::endl;
 
-				GenericImage<rgb3> image_rotated( image_input.height( ), image_input.width( ) );
-				std::copy( image_input.begin( ), image_input.end( ), image_rotated.begin( ) );
+				GenericImage<rgb3> image_rotated( image_input.height( ),
+				                                  image_input.width( ) );
+				std::copy( image_input.begin( ), image_input.end( ),
+				           image_rotated.begin( ) );
 				return image_rotated;
 			}
 			}
 		}
 
 #ifdef DAWFILTER_USEPYTHON
-		static void register_python( std::string const nameoftype = "filter_rotate" ) {
+		static void
+		register_python( std::string const nameoftype = "filter_rotate" ) {
 			boost::python::def( nameoftype.c_str( ), &FilterRotate::filter );
 		}
 #endif

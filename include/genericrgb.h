@@ -39,13 +39,23 @@ namespace daw {
 			T green;
 			T red;
 
-			constexpr GenericRGB( ) noexcept : blue{0}, green{0}, red{0} {}
-			constexpr GenericRGB( T const &GS ) noexcept : blue{GS}, green{GS}, red{GS} {}
+			constexpr GenericRGB( ) noexcept
+			  : blue{0}
+			  , green{0}
+			  , red{0} {}
+			constexpr GenericRGB( T const &GS ) noexcept
+			  : blue{GS}
+			  , green{GS}
+			  , red{GS} {}
 
-			constexpr GenericRGB( T const &Red, T const &Green, T const &Blue ) noexcept
-			  : blue{Blue}, green{Green}, red{Red} {}
+			constexpr GenericRGB( T const &Red, T const &Green,
+			                      T const &Blue ) noexcept
+			  : blue{Blue}
+			  , green{Green}
+			  , red{Red} {}
 
-			constexpr void set_all( T const &Red, T const &Green, T const &Blue ) noexcept {
+			constexpr void set_all( T const &Red, T const &Green,
+			                        T const &Blue ) noexcept {
 				blue = Blue;
 				green = Green;
 				red = Red;
@@ -71,13 +81,17 @@ namespace daw {
 				return *this;
 			}
 
-			static constexpr float colform( GenericRGB<T> const &c, float Red, float Green, float Blue ) noexcept {
-				return Red * static_cast<float>( c.red ) + Green * static_cast<float>( c.green ) +
+			static constexpr float colform( GenericRGB<T> const &c, float Red,
+			                                float Green, float Blue ) noexcept {
+				return Red * static_cast<float>( c.red ) +
+				       Green * static_cast<float>( c.green ) +
 				       Blue * static_cast<float>( c.blue );
 			}
 
-			constexpr float colform( float Red, float Green, float Blue ) const noexcept {
-				return colform( *this, std::move( Red ), std::move( Green ), std::move( Blue ) );
+			constexpr float colform( float Red, float Green, float Blue ) const
+			  noexcept {
+				return colform( *this, std::move( Red ), std::move( Green ),
+				                std::move( Blue ) );
 			}
 
 			constexpr void clampvalue( T const &min, T const &max ) noexcept {
@@ -138,12 +152,14 @@ namespace daw {
 
 			template<typename V>
 			constexpr GenericRGB<V> as( ) noexcept {
-				return GenericRGB<V>( static_cast<V>( red ), static_cast<V>( green ), static_cast<V>( blue ) );
+				return GenericRGB<V>( static_cast<V>( red ), static_cast<V>( green ),
+				                      static_cast<V>( blue ) );
 			}
 
 #ifdef DAWFILTER_USEPYTHON
 			static void register_python( std::string const &nameoftype ) {
-				boost::python::class_<GenericRGB>( nameoftype.c_str( ), boost::python::init<>( ) )
+				boost::python::class_<GenericRGB>( nameoftype.c_str( ),
+				                                   boost::python::init<>( ) )
 				  .def( bpython::init<T, T, T>( ) )
 				  .def_readwrite( "red", &GenericRGB::red )
 				  .def_readwrite( "green", &GenericRGB::green )
@@ -153,7 +169,8 @@ namespace daw {
 		};
 
 		template<typename L, typename R>
-		constexpr void min( GenericRGB<L> const &value, GenericRGB<R> &cur_min ) noexcept {
+		constexpr void min( GenericRGB<L> const &value,
+		                    GenericRGB<R> &cur_min ) noexcept {
 			if( value.red < cur_min.red ) {
 				cur_min.red = value.red;
 			}
@@ -166,7 +183,8 @@ namespace daw {
 		}
 
 		template<typename L, typename R>
-		constexpr void max( GenericRGB<L> const &value, GenericRGB<R> &cur_max ) noexcept {
+		constexpr void max( GenericRGB<L> const &value,
+		                    GenericRGB<R> &cur_max ) noexcept {
 			if( value.red > cur_max.red ) {
 				cur_max.red = value.red;
 			}

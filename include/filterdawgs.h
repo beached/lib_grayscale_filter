@@ -41,11 +41,13 @@ namespace daw {
 			}
 
 			static constexpr uint32_t too_gs( rgb3 const &pixel ) noexcept {
-				return 19595 * pixel.red + 38469 * pixel.green + 7471 * pixel.blue; // 0.299r + 0.587g + 0.114b
+				return 19595 * pixel.red + 38469 * pixel.green +
+				       7471 * pixel.blue; // 0.299r + 0.587g + 0.114b
 			}
 
 #ifdef DAWFILTER_USEPYTHON
-			static void register_python( std::string const nameoftype = "filter_dawgs" );
+			static void
+			register_python( std::string const nameoftype = "filter_dawgs" );
 #endif
 		};
 	} // namespace imaging

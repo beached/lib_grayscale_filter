@@ -34,10 +34,12 @@ namespace daw {
 	namespace imaging {
 		class FilterRotate {
 		public:
-			static GenericImage<rgb3> filter( GenericImage<rgb3> const &image_input, uint32_t const angle );
+			static GenericImage<rgb3> filter( GenericImage<rgb3> const &image_input,
+			                                  uint32_t const angle );
 
 #ifdef DAWFILTER_USEPYTHON
-			static void register_python( std::string const nameoftype = "filter_rotate" );
+			static void
+			register_python( std::string const nameoftype = "filter_rotate" );
 #endif
 		};
 	} // namespace imaging

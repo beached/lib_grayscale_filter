@@ -42,11 +42,14 @@ namespace daw {
 				HSL = 5
 			};
 
-			static GenericImage<rgb3> filter(
-			  GenericImage<rgb3> const &input_image, GenericImage<rgb3> const &input_gsimage,
-			  FilterDAWGSColourize::repaint_formulas const repaint_formula = FilterDAWGSColourize::repaint_formulas::Ratio );
+			static GenericImage<rgb3>
+			filter( GenericImage<rgb3> const &input_image,
+			        GenericImage<rgb3> const &input_gsimage,
+			        FilterDAWGSColourize::repaint_formulas const repaint_formula =
+			          FilterDAWGSColourize::repaint_formulas::Ratio );
 
-			static std::unordered_map<std::string, repaint_formulas> get_repaint_formulas( );
+			static std::unordered_map<std::string, repaint_formulas>
+			get_repaint_formulas( );
 
 #ifdef DAWFILTER_USEPYTHON
 			static void register_python( );
@@ -58,7 +61,8 @@ namespace daw {
 namespace std {
 	template<>
 	struct hash<daw::imaging::FilterDAWGSColourize::repaint_formulas> {
-		size_t operator( )( daw::imaging::FilterDAWGSColourize::repaint_formulas rf ) const {
+		size_t operator( )(
+		  daw::imaging::FilterDAWGSColourize::repaint_formulas rf ) const {
 			return static_cast<size_t>( rf );
 		}
 	}; // struct hash<daw::imaging::FilterDAWGSColourize::repaint_formulas>
