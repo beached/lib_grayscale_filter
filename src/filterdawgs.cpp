@@ -57,9 +57,7 @@ namespace daw {
 			std::vector<uint32_t> const keys = [&]( ) {
 				std::vector<uint32_t> v{};
 				v.resize( input_image.size( ) );
-				// Create a unique_values item for each distinct grayscale item in image
-				// and then set count to zero
-				// no parallel to unique_values
+
 				daw::algorithm::parallel::transform(
 				  input_image.begin( ), input_image.end( ), v.begin( ),
 				  []( auto rgb ) { return daw::imaging::FilterDAWGS::too_gs( rgb ); } );
@@ -90,8 +88,8 @@ namespace daw {
 			daw::algorithm::parallel::transform(
 			  input_image.cbegin( ), input_image.cend( ), output_image.begin( ),
 			  [&bins]( auto rgb ) {
-				  return std::distance(
-				    bins.cbegin( ), std::lower_bound( bins.cbegin( ), bins.cend( ),
+				  return daw::distance(
+				    bins.cbegin( ), std::upper_bound( bins.cbegin( ), bins.cend( ),
 				                                      FilterDAWGS::too_gs( rgb ) ) );
 			  } );
 
