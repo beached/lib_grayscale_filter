@@ -49,6 +49,9 @@ namespace daw {
 				return daw::imaging::FilterDAWGS::too_gs( rgb );
 			});
 
+			daw::algorithm::parallel::sort( keys.begin(), keys.end( ) );
+			keys.erase( std::unique( keys.begin( ), keys.end( ) ), keys.end( ) );
+
 			// If we must compress as there isn't room for number of grayscale items
 			if( keys.size( ) <= 256 ) {
 				std::cerr << "Already a grayscale image or has enough room for all "
@@ -61,22 +64,25 @@ namespace daw {
 
 				return image_output;
 			}
-			daw::algorithm::parallel::sort( keys.begin(), keys.end( ) );
-			keys.erase( std::unique( keys.begin( ), keys.end( ) ), keys.end( ) );
 
 			auto const inc = static_cast<float>( keys.size( ) ) / 256.0f;
 
+			/*
 			std::unordered_map<uint32_t, uint8_t> value_pos{};
 			value_pos.reserve( keys.size( ) );
 
 			for( size_t n = 0; n < keys.size( ); ++n ) {
 				value_pos.emplace( keys[n], static_cast<uint8_t>( static_cast<float>( n ) / inc ) );
 			}
+			*/
 
 			GenericImage<rgb3> output_image{input_image.width( ), input_image.height( )};
 
 			daw::algorithm::parallel::transform( input_image.cbegin( ), input_image.cend( ), output_image.begin( ),
-			                [&value_pos]( auto rgb ) { return value_pos[FilterDAWGS::too_gs( rgb )]; } );
+			                [&keys, inc]( auto rgb ) {
+												auto const n = std::distance( keys.cbegin( ), std::lower_bound( keys.cbegin( ), keys.cend( ), FilterDAWGS::too_gs( rgb ) ) );
+												return static_cast<uint8_t>( static_cast<float>( n ) / inc );
+											} );
 
 			return output_image;
 		}
