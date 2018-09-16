@@ -30,6 +30,7 @@
 #include <daw/daw_algorithm.h>
 #include <daw/daw_array.h>
 #include <daw/daw_container_algorithm.h>
+#include <daw/fs/algorithms.h>
 
 #include "filterdawgs.h"
 #include "genericimage.h"
@@ -75,7 +76,7 @@ namespace daw {
 			GenericImage<rgb3> output_image{input_image.width( ), input_image.height( )};
 
 			// TODO: make parallel
-			std::transform( input_image.cbegin( ), input_image.cend( ), output_image.begin( ),
+			daw::algorithm::parallel::transform( input_image.cbegin( ), input_image.cend( ), output_image.begin( ),
 			                [&value_pos]( auto rgb ) { return value_pos[FilterDAWGS::too_gs( rgb )]; } );
 
 			return output_image;

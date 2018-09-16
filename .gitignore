@@ -23,6 +23,7 @@ Thumbs.db
 *.lib
 *.sbr
 obj/
+.vs/
 [Rr]elease*/
 _ReSharper*/
 [Tt]est[Rr]esult*
@@ -191,5 +192,4 @@ nbproject/*
 *.cd
 *.cd
 a.out
-cmake-build-debug/*
-/.vs/*
+cmake-build-*/*

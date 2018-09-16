@@ -18,30 +18,33 @@ endif( )
 find_package( FreeImage REQUIRED )
 enable_testing( )
 
+find_package( Threads REQUIRED )
+
 if( ${CMAKE_CXX_COMPILER_ID} STREQUAL 'MSVC' )
 	add_compile_options( -D_WIN32_WINNT=0x0601 /std:c++latest )
 else( )
 	if( ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "AppleClang" )
-		add_compile_options(-std=c++14 -march=native -Weverything -Wno-c++98-compat -Wno-covered-switch-default -Wno-padded -Wno-exit-time-destructors -Wno-c++98-compat-pedantic -Wno-unused-parameter -Wno-missing-noreturn -Wno-missing-prototypes -Wno-disabled-macro-expansion)
+		add_compile_options(-std=c++14 -march=native -pthread -pedantic -Weverything -Wno-c++98-compat -Wno-covered-switch-default -Wno-padded -Wno-exit-time-destructors -Wno-c++98-compat-pedantic -Wno-unused-parameter -Wno-missing-noreturn -Wno-missing-prototypes -Wno-disabled-macro-expansion)
 		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 	elseif( ${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" )
-		add_compile_options(-std=c++14 -march=native -Wall -Wno-deprecated-declarations -Wduplicated-cond -Wlogical-op -Wnull-dereference -Wold-style-cast -Wshadow)
+		add_compile_options(-std=c++14 -march=native -pthread -Wall -Wno-noexcept-type -Wno-deprecated-declarations -Wduplicated-cond -Wlogical-op -Wnull-dereference -Wold-style-cast -Wshadow)
 		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 	endif( )
 endif( )
 
-externalproject_add(
-	header_libraries_prj
-	GIT_REPOSITORY "https://github.com/beached/header_libraries.git"
-	GIT_TAG "master"
-	SOURCE_DIR "${CMAKE_BINARY_DIR}/dependencies/header_libraries"
-	INSTALL_DIR "${CMAKE_BINARY_DIR}/install"
-	CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/install
-	PATCH_COMMAND ""
-	TEST_COMMAND ""
-)
+if( EXISTS "${CMAKE_SOURCE_DIR}/dependent_projects/build" )
+	add_custom_target( dependency_stub )
+	include_directories( SYSTEM "${CMAKE_SOURCE_DIR}/dependent_projects/build/install/include" )
+	link_directories( "${CMAKE_SOURCE_DIR}/dependent_projects/build/install/lib" )
+else( )
+	set( SHOULD_BUILD_DEPS ON )
+	include( "${CMAKE_SOURCE_DIR}/dependent_projects/dependencies.txt" )
+
+	add_library( dependency_stub STATIC "${CMAKE_SOURCE_DIR}/dependent_projects/stub.cpp" )
+	add_dependencies( dependency_stub header_libraries_prj function_stream_prj )
+endif( )
 
 include_directories( SYSTEM "${CMAKE_BINARY_DIR}/install/include" )
 link_directories( "${CMAKE_BINARY_DIR}/install/lib" )
@@ -75,24 +78,23 @@ set( SOURCE_FILES
 )
 
 add_library( grayscale_filter ${HEADER_FILES} ${SOURCE_FILES} )
-add_dependencies( grayscale_filter header_libraries_prj )
-target_link_libraries( grayscale_filter ${Boost_LIBRARIES} ${FREEIMAGE_LIBRARIES} )
+add_dependencies( grayscale_filter dependency_stub )
+target_link_libraries( grayscale_filter task_scheduler_lib function_stream_lib ${Boost_LIBRARIES} ${FREEIMAGE_LIBRARIES} )
 
 add_custom_target( check COMMAND ${CMAKE_CTEST_COMMAND} )
 
 add_executable( image_in_out_test_bin EXCLUDE_FROM_ALL ${FUNCTION_STREAM_HEADER_FILES} ${TASK_SCHEDULER_HEADER_FILES} ${TEST_FOLDER}/image_in_out_test.cpp )
 target_link_libraries( image_in_out_test_bin grayscale_filter ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} )
-add_dependencies( image_in_out_test_bin grayscale_filter header_libraries_prj )
+add_dependencies( image_in_out_test_bin grayscale_filter dependency_stub )
 add_test( image_in_out_test image_in_out_test_bin "${PROJECT_SOURCE_DIR}/img_in_001.jpg" "${CMAKE_BINARY_DIR}/img_out_001.jpg" )
 add_dependencies( check image_in_out_test_bin )
 
 add_executable( filter_speed_test_bin EXCLUDE_FROM_ALL ${FUNCTION_STREAM_HEADER_FILES} ${TASK_SCHEDULER_HEADER_FILES} ${TEST_FOLDER}/filter_speed_test.cpp )
 target_link_libraries( filter_speed_test_bin grayscale_filter ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} )
-add_dependencies( filter_speed_test_bin grayscale_filter header_libraries_prj )
+add_dependencies( filter_speed_test_bin grayscale_filter dependency_stub )
 add_test( filter_speed_test filter_speed_test_bin "${PROJECT_SOURCE_DIR}/img_in_001.jpg" "${CMAKE_BINARY_DIR}/img_out_001.jpg" )
 add_dependencies( check filter_speed_test_bin )
 
 install( TARGETS grayscale_filter DESTINATION lib )
 install( DIRECTORY ${HEADER_FOLDER}/ DESTINATION include/daw/grayscale_filter )
-
 
