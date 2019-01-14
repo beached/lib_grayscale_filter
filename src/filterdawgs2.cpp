@@ -32,10 +32,10 @@
 #include <vector>
 
 #include <daw/daw_array.h>
+#include <daw/daw_bounded_array.h>
 #include <daw/daw_container_algorithm.h>
 #include <daw/daw_exception.h>
 #include <daw/daw_math.h>
-#include <daw/daw_static_array.h>
 #include <daw/daw_utility.h>
 
 #include "filterdawgs2.h"
@@ -65,7 +65,7 @@ namespace daw {
 					constexpr auto coefficients( ) noexcept {
 						auto const sqrt_tmp = sqrt( static_cast<T>( 0.125 ) );
 						auto const pi_over_64 = daw::math::PI<T> / static_cast<T>( 64.0 );
-						daw::static_array_t<T, 64> result;
+						daw::bounded_array_t<T, 64> result;
 						for( size_t j = 0; j < 8; ++j ) {
 							result[j] = sqrt_tmp;
 							for( size_t i = 8; i < 64; i += 8 ) {
